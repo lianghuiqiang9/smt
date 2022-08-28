@@ -1,3 +1,7 @@
 # smt
 This is a threshold SM2 signature program.
 It still need to be tested before they can be used, only for learning and communication.
+
+Abstract
+
+A threshold signature is a special digital signature in which the N-signer share the private key x and can construct a valid signature for any subset of the included t-signer, but less than $t$-signer cannot obtain any information. Considering the breakthrough achievements of threshold ECDSA signature and threshold Schnorr signature, the existing SM2 threshold signature is still limited to two parties or based on the honest majority setting, there is no more effective solution for the multiparty case. To make the SM2 signature have more flexible application scenarios, promote the application of the SM2 signature scheme in the blockchain system and secure cryptocurrency wallets. This paper designs a non-interactive SM2 threshold signature scheme based on partially homomorphic encryption and zero-knowledge proof. Only the last round requires the message input, so make our scheme non-interactive, and the pre-signing process takes 2 rounds of communication to complete after the key generation. We allow arbitrary threshold t<=n and design a key update strategy. It can achieve security with identifiable abort under the malicious majority, which means that if the signature process fails, we can find the failed party. Performance analysis shows that the computation and communication volume of the pre-signing process grows linearly with the parties, and it is only 1/3 of the Canetti's threshold ECDSA (CCS'20).
