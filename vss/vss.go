@@ -8,7 +8,8 @@ import (
 	"github.com/lianghuiqiang9/smt/network"
 
 	"github.com/cronokirby/safenum"
-	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	// "github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	"github.com/lianghuiqiang9/smt/paillier"
 )
 
 // 不失去一般性，我们取签名方为第0方到第T-1方。如需拓展，还需要结合签名方，来计算对应的lagrange系数
