@@ -12,7 +12,8 @@ import (
 	"sync"
 
 	"github.com/cronokirby/safenum"
-	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	"github.com/lianghuiqiang9/smt/paillier"
+	// "github.com/taurusgroup/multi-party-sig/pkg/paillier"
 )
 
 type Round1Info struct {
