@@ -8,7 +8,8 @@ import (
 	msm2 "github.com/lianghuiqiang9/smt/modfiysm2"
 
 	"github.com/cronokirby/safenum"
-	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	// "github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	"github.com/lianghuiqiang9/smt/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/zk"
 	"github.com/tjfoc/gmsm/sm2"
 )

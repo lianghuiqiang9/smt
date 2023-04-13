@@ -4,9 +4,13 @@ import (
 	"crypto/rand"
 	"hash"
 
+	//	"math/big"
+
 	"github.com/cronokirby/safenum"
+	"github.com/lianghuiqiang9/smt/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
-	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
+
+	//	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 )
 

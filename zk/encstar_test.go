@@ -11,7 +11,7 @@ import (
 	"github.com/cronokirby/safenum"
 
 	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
-	mzk "github.com/taurusgroup/multi-party-sig/pkg/zk"
+	//	mzk "github.com/taurusgroup/multi-party-sig/pkg/zk"
 	"github.com/tjfoc/gmsm/sm2"
 )
 
@@ -25,9 +25,9 @@ func TestEncstar(t *testing.T) {
 
 	Xx, Xy := priv.Curve.ScalarBaseMult(xi.Bytes())
 
-	verifierPaillier := mzk.VerifierPaillierPublic
-	verifierPedersen := mzk.Pedersen
-	prover := mzk.ProverPaillierPublic
+	verifierPaillier := VerifierPaillierPublic
+	verifierPedersen := Pedersen
+	prover := ProverPaillierPublic
 
 	c := new(safenum.Int).SetUint64(12)
 	C, _ := verifierPaillier.Enc(c)
