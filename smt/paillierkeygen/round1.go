@@ -6,10 +6,13 @@ import (
 	"math/big"
 	"sync"
 
+	//	paillierbig "github.com/roasbeef/go-go-gadget-paillier"
+
 	"github.com/lianghuiqiang9/smt/network"
+	"github.com/lianghuiqiang9/smt/paillier"
 
 	"github.com/taurusgroup/multi-party-sig/pkg/hash"
-	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	//	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 
 	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 	"github.com/taurusgroup/multi-party-sig/pkg/pool"
@@ -22,11 +25,13 @@ type Round1Info struct {
 	FromID            string
 	Rtigi             *big.Int
 	PaillierPublickey *paillier.PublicKey
-	Aux               *pedersen.Parameters
-	PrmPubic          *prm.Public
-	PrmProof          *prm.Proof
-	ModPubic          *mod.Public
-	ModProof          *mod.Proof
+	//	Paillierpubkey    *paillierbig.PublicKey
+
+	Aux      *pedersen.Parameters
+	PrmPubic *prm.Public
+	PrmProof *prm.Proof
+	ModPubic *mod.Public
+	ModProof *mod.Proof
 }
 
 // 定义的每一个Content都要有一个这样的方法来引入，方便万能指针指向
