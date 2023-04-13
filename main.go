@@ -19,9 +19,9 @@ func main() {
 	//选定初始化曲线
 	C := sm2.P256Sm2()
 	//确定参与方人数N<26
-	N := 2
+	N := 9
 	//确定阈值T<=N
-	T := 2
+	T := 9
 	//建立network
 	var net = network.NewNetwork(nil, N, T, C)
 	//初始化通信信道

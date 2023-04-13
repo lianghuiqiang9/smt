@@ -15,10 +15,10 @@ and the big problem is safenet to bigint, everything is changed. we can do it. c
 2022/4/13
 
 Now, we have optimized the paillier encryption, and the speed has increased by 7 times, but it is still far from enough. The main changes are as follows
-1. My level is limited, and I haven't written great code. Regarding the paillier encryption module, I refer to github.com/roasbeef/go-go-gadget-paillier, and copied part of it (because the function is written differently, it cannot be called directly ). In the original paillier encryption, (N+1)^mmod N^2 is changed to Nm+1modN^2. In addition, the ExpI of point multiplication is replaced.
+1. My level is limited, and I haven't written great code. Regarding the paillier encryption module, I refer to github.com/roasbeef/go-go-gadget-paillier, and copied part of it (because the function is written differently, it cannot be called directly ). In the original paillier encryption, (N+1)^mmod N^2 is changed to Nm+1modN^2. In addition, the decryption uses the Chinese remainder theorem (CRT), the ExpI of point multiplication is replaced.
 2. Please refer to https://journal.hep.com.cn/fcs/EN/10.1007/s11704-022-2288-x DOI: 10.1007/s11704-022-2288-x for theoretical running time
 
 现在，我们对paillier加密做了优化，速度提高了7倍，但是仍然远远不够. 主要改动如下
-1. 本人水平有限，没有写出很棒的代码，关于paillier加密模块，我参考了github.com/roasbeef/go-go-gadget-paillier，并复制了其中一部分（因为函数写法不同，无法直接调用）。对原有的paillier 加密中 （N+1）^mmod N^2变为Nm+1modN^2,另外，对点乘的ExpI进行了替换。
+1. 本人水平有限，没有写出很棒的代码，关于paillier加密模块，我参考了github.com/roasbeef/go-go-gadget-paillier，并复制了其中一部分（因为函数写法不同，无法直接调用）。对原有的paillier 加密中 （N+1）^mmod N^2变为Nm+1modN^2,另外，解密用了中国剩余定理(CRT)，对点乘的ExpI进行了替换。
 2. 理论运行时间请看https://journal.hep.com.cn/fcs/EN/10.1007/s11704-022-2288-x
 
