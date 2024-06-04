@@ -5,14 +5,11 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"hash"
-
-	"github.com/lianghuiqiang9/smt/network"
-
 	"io"
 	"math/big"
 )
 
-var one = new(big.Int).SetInt64(1) //将1变成大数
+var One = new(big.Int).SetInt64(1)
 
 func BytesCombine(pBytes ...[]byte) []byte {
 	var buffer bytes.Buffer
@@ -34,41 +31,42 @@ func RandFieldElement(C elliptic.Curve, random io.Reader) (k *big.Int, err error
 		return
 	}
 	k = new(big.Int).SetBytes(b)
-	n := new(big.Int).Sub(params.N, one)
+	n := new(big.Int).Sub(params.N, One) // n = N-1
 	k.Mod(k, n)
-	k.Add(k, one)
+	k.Add(k, One)
 	return
 }
 
 func Generatekey(C elliptic.Curve, random io.Reader) (*big.Int, *big.Int, *big.Int) {
-	//sk为私钥
+
 	sk, _ := RandFieldElement(C, nil)
 
-	//pk作为公钥pk=(sk^-1-1)G
+	//pk=(sk^-1-1)G
 	skInv := new(big.Int).ModInverse(sk, C.Params().N)
-	oneNeg := new(big.Int).Sub(C.Params().N, one)
-	skTnvaddoneNeg := new(big.Int).Add(skInv, oneNeg)
-	pkx, pky := C.ScalarBaseMult(skTnvaddoneNeg.Bytes())
+	OneNeg := new(big.Int).Sub(C.Params().N, One)
+	skInvAddOneNeg := new(big.Int).Add(skInv, OneNeg)
+	pkx, pky := C.ScalarBaseMult(skInvAddOneNeg.Bytes())
 
 	return sk, pkx, pky
 }
-func Sign(C elliptic.Curve, hash hash.Hash, msg []byte, sk *big.Int, random io.Reader) (*big.Int, *big.Int) {
-	hash.Write(msg)
+func Sign(C elliptic.Curve, hash hash.Hash, Msg []byte, Z *big.Int, sk *big.Int, random io.Reader) (*big.Int, *big.Int) {
+	hash.Write(BytesCombine(Z.Bytes(), Msg))
 	bytes := hash.Sum(nil)
-	//将hash映射到椭圆曲线阶上。
+
 	e := new(big.Int).SetBytes(bytes)
 	e = e.Mod(e, C.Params().N)
-	hash.Reset() //要养成一个良好的习惯。
+	hash.Reset()
 
 	//计算随机数
-	k, _ := RandFieldElement(C, random)
-	Rx, _ := C.ScalarBaseMult(k.Bytes())
+	K, _ := RandFieldElement(C, random)
+	KGx, _ := C.ScalarBaseMult(K.Bytes())
 
 	//计算r
-	r := new(big.Int).Add(Rx, e)
+	r := new(big.Int).Add(KGx, e)
 	r.Mod(r, C.Params().N)
+
 	//计算s
-	s := new(big.Int).Add(k, r)
+	s := new(big.Int).Add(K, r)
 	s.Mul(s, sk)
 	s.Mod(s, C.Params().N)
 	s.Sub(s, r)
@@ -78,33 +76,33 @@ func Sign(C elliptic.Curve, hash hash.Hash, msg []byte, sk *big.Int, random io.R
 
 }
 
-func Verify(C elliptic.Curve, hash hash.Hash, msg []byte, Z *big.Int, pkx, pky *big.Int, r *big.Int, s *big.Int) bool {
+func Verify(C elliptic.Curve, hash hash.Hash, Msg []byte, Z *big.Int, pkx, pky *big.Int, r *big.Int, s *big.Int) bool {
 
-	hash.Write(BytesCombine(Z.Bytes(), msg))
+	hash.Write(BytesCombine(Z.Bytes(), Msg))
 	bytes := hash.Sum(nil)
-	//将hash映射到椭圆曲线阶上。
-	e2 := new(big.Int).SetBytes(bytes)
-	e2 = e2.Mod(e2, C.Params().N)
-	hash.Reset() //要养成一个良好的习惯。
 
-	//计算t
-	t1 := new(big.Int).Add(r, s)
-	t1.Mod(t1, C.Params().N)
+	e := new(big.Int).SetBytes(bytes)
+	e = e.Mod(e, C.Params().N)
+	hash.Reset()
 
-	//计算sG+tpk
-	SGx, SGy := C.ScalarBaseMult(s.Bytes())
-	TXx, TXy := C.ScalarMult(pkx, pky, t1.Bytes())
-	Rx1, _ := C.Add(SGx, SGy, TXx, TXy)
+	//计算t = r + s mod N
+	t := new(big.Int).Add(r, s)
+	t.Mod(t, C.Params().N)
 
-	//计算r1=(rx+e)modN
-	r1 := new(big.Int).Add(Rx1, e2)
-	r1.Mod(r1, C.Params().N)
+	//计算 rGx , _ = s * G + t * pk
+	sGx, sGy := C.ScalarBaseMult(s.Bytes())
+	tPkx, tPky := C.ScalarMult(pkx, pky, t.Bytes())
+	rGx, _ := C.Add(sGx, sGy, tPkx, tPky)
 
-	return r.Cmp(r1) == 0
+	//计算rTemp = ( rGx + e) mod N
+	rTemp := new(big.Int).Add(rGx, e)
+	rTemp.Mod(rTemp, C.Params().N)
+
+	return r.Cmp(rTemp) == 0
 }
 
-func ComputeZ(hash hash.Hash, party *network.Party) *big.Int {
-	hash.Write(BytesCombine(party.Rtig.Bytes(), party.Rho.Bytes(), party.Xx.Bytes(), party.Xy.Bytes()))
+func ComputeZ(hash hash.Hash, Rtig *big.Int, Rho *big.Int, Xx *big.Int, Xy *big.Int) *big.Int {
+	hash.Write(BytesCombine(Rtig.Bytes(), Rho.Bytes(), Xx.Bytes(), Xy.Bytes()))
 	bytes := hash.Sum(nil)
 	Z := new(big.Int).SetBytes(bytes)
 	hash.Reset()

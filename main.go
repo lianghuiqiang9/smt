@@ -14,14 +14,14 @@ import (
 
 func main() {
 
-	start1 := time.Now()
+	start := time.Now()
 
 	//选定初始化曲线
 	C := sm2.P256Sm2()
 	//确定参与方人数N<26
-	N := 2
+	N := 8
 	//确定阈值T<=N
-	T := 2
+	T := 8
 	//建立network
 	var net = network.NewNetwork(nil, N, T, C)
 	//初始化通信信道
@@ -32,41 +32,41 @@ func main() {
 	//paillierkeygen为每一方生成合适的paillier公私钥，persedern数，和Rtig
 	fmt.Println("paillierkeygen")
 	smt.Paillierkeygen(&net, SecretInfo)
-	cost1 := time.Since(start1)
-	fmt.Println("paillierkeygen cost=", cost1.Seconds())
+	cost := time.Since(start)
+	fmt.Println("paillierkeygen cost=", cost.Seconds())
 
 	fmt.Println("k", C.Params().N.BitLen(), "mu", net.Parties[0].PaillierPublickey.N().BitLen())
 
 	//tskeygen为每一个参与方生成私钥xi,yi,和公钥x^-1-1G。
 	fmt.Println("tskeygen")
 
-	start2 := time.Now()
+	start = time.Now()
 	smt.Tskeygen(&net, SecretInfo)
 
-	cost2 := time.Since(start2)
-	fmt.Println("tskeygen cost=", cost2.Seconds())
+	cost = time.Since(start)
+	fmt.Println("tskeygen cost=", cost.Seconds())
 
 	fmt.Println("tskeygen end")
-	start3 := time.Now()
+	start = time.Now()
 	smt.Presigning(&net, SecretInfo)
 
-	cost3 := time.Since(start3)
-	fmt.Println("presigning cost=", cost3.Seconds())
+	cost = time.Since(start)
+	fmt.Println("presigning cost=", cost.Seconds())
 
 	msg := []byte("HELLO MSM2")
 	net.Msg = msg
 
-	start4 := time.Now()
+	start = time.Now()
 	smt.Signing(&net, SecretInfo)
-	cost4 := time.Since(start4)
+	cost = time.Since(start)
 
-	fmt.Println("signing cost=", cost4.Microseconds())
+	fmt.Println("signing cost=", cost.Microseconds())
 	R := new(big.Int).Set(net.Parties[0].R)
 	S := new(big.Int).Set(net.Parties[0].S)
-	party := net.Parties[0]
+	party0 := net.Parties[0]
 
-	Z := modfiysm2.ComputeZ(net.Hash, &party)
-	flag := modfiysm2.Verify(C, net.Hash, msg, Z, party.Xx, party.Xy, R, S)
+	Z := modfiysm2.ComputeZ(net.Hash, party0.Rtig, party0.Rho, party0.Xx, party0.Xy)
+	flag := modfiysm2.Verify(C, net.Hash, msg, Z, party0.Xx, party0.Xy, R, S)
 	fmt.Println("签名验证结果", flag)
 
 	fmt.Println("main end")

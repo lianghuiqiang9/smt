@@ -53,12 +53,12 @@ func TestSmt(t *testing.T) {
 
 	cost2 := time.Since(start2)
 	fmt.Println("signing cost=", cost2.Seconds())
-	party := net.Parties[0]
+	party0 := net.Parties[0]
 
-	Z := modfiysm2.ComputeZ(net.Hash, &party)
+	Z := modfiysm2.ComputeZ(net.Hash, party0.Rtig, party0.Rho, party0.Xx, party0.Xy)
 
 	msg2 := []byte("HELLO MSM2")
-	flag := modfiysm2.Verify(C, net.Hash, msg2, Z, party.Xx, party.Xy, party.R, party.S)
+	flag := modfiysm2.Verify(C, net.Hash, msg2, Z, party0.Xx, party0.Xy, party0.R, party0.S)
 	fmt.Println("签名验证结果", flag)
 
 	fmt.Println("testing end")
@@ -90,12 +90,12 @@ func BenchmarkSmt(b *testing.B) {
 		net.Msg = msg
 		Signing(&net, SecretInfo)
 
-		party := net.Parties[0]
+		party0 := net.Parties[0]
 
-		Z := modfiysm2.ComputeZ(net.Hash, &party)
+		Z := modfiysm2.ComputeZ(net.Hash, party0.Rtig, party0.Rho, party0.Xx, party0.Xy)
 
 		msg2 := []byte("HELLO MSM2")
-		flag := modfiysm2.Verify(C, net.Hash, msg2, Z, party.Xx, party.Xy, party.R, party.S)
+		flag := modfiysm2.Verify(C, net.Hash, msg2, Z, party0.Xx, party0.Xy, party0.R, party0.S)
 		fmt.Println("签名验证结果", flag)
 	}
 }

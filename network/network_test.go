@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/tjfoc/gmsm/sm2"
 )
 
 func TestNetwork(t *testing.T) {
-	c := sm2.P256Sm2()
+
+	fmt.Println("test start")
 	N := 4
-	Threshold := 2
-	var net = NewNetwork(nil, N, Threshold, c)
+	T := 2
+	var net = NewNetwork(nil, N, T, nil)
 
 	net.Init()
 
@@ -48,6 +47,6 @@ func TestNetwork(t *testing.T) {
 	}()
 
 	time.Sleep(1 * time.Second)
-	fmt.Println("main end")
+	fmt.Println("test end")
 
 }

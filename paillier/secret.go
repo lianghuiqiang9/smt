@@ -170,7 +170,7 @@ func (sk *SecretKey) Dec(ct *Ciphertext) (*safenum.Int, error) {
 	return new(safenum.Int).SetModSymmetric(result, n), nil
 }
 
-func (sk *SecretKey) Dec1(ct *Ciphertext) (*big.Int, error) {
+func (sk *SecretKey) Dec2(ct *Ciphertext) (*big.Int, error) {
 	//	oneNat := new(safenum.Nat).SetUint64(1)
 
 	//	n := sk.PublicKey.n.Modulus

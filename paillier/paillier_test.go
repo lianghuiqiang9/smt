@@ -18,6 +18,7 @@ var (
 	paillierSecret *SecretKey
 )
 
+/*
 func init() {
 	p, _ := new(safenum.Nat).SetHex("FD90167F42443623D284EA828FB13E374CBF73E16CC6755422B97640AB7FC77FDAF452B4F3A2E8472614EEE11CC8EAF48783CE2B4876A3BB72E9ACF248E86DAA5CE4D5A88E77352BCBA30A998CD8B0AD2414D43222E3BA56D82523E2073730F817695B34A4A26128D5E030A7307D3D04456DC512EBB8B53FDBD1DFC07662099B")
 	q, _ := new(safenum.Nat).SetHex("DB531C32024A262A0DF9603E48C79E863F9539A82B8619480289EC38C3664CC63E3AC2C04888827559FFDBCB735A8D2F1D24BAF910643CE819452D95CAFFB686E6110057985E93605DE89E33B99C34140EF362117F975A5056BFF14A51C9CD16A4961BE1F02C081C7AD8B2A5450858023A157AFA3C3441E8E00941F8D33ED6B7")
@@ -31,6 +32,7 @@ func init() {
 	//		panic(err)
 	//	}
 }
+*/
 
 func reinit() {
 	pl := pool.NewPool(0)
@@ -67,48 +69,47 @@ func TestIsok(t *testing.T) {
 	paillierSecret = NewSecretKeyFromPrimes(p, q)
 	paillierPublic = paillierSecret.PublicKey
 
-	m := new(safenum.Int).SetNat(p)
-	start11 := time.Now()
-	ciphertext, _ := paillierPublic.Enc(m)
-	cost11 := time.Since(start11)
-	fmt.Println("Enc cost=", cost11.Seconds())
-	start12 := time.Now()
-	shouldBe, _ := paillierSecret.Dec(ciphertext)
-	cost12 := time.Since(start12)
-	fmt.Println("Dec cost=", cost12.Seconds(), shouldBe.Big())
+	pSafe := new(safenum.Int).SetNat(p)
+	start := time.Now()
+	ctpSafe, _ := paillierPublic.Enc(pSafe)
+	cost := time.Since(start)
+	fmt.Println("Enc cost=", cost.Seconds())
+	start = time.Now()
+	_, _ = paillierSecret.Dec(ctpSafe)
+	cost = time.Since(start)
+	fmt.Println("Dec cost=", cost.Seconds())
 
-	mbig := p.Big()
-	start13 := time.Now()
-	ciphertextbig, _ := paillierPublic.Enc1(mbig)
-	cost13 := time.Since(start13)
-	fmt.Println("Encbig cost=", cost13.Seconds())
-	start14 := time.Now()
-	shouldBebig, _ := paillierSecret.Dec1(ciphertextbig)
-	cost14 := time.Since(start14)
-	fmt.Println("Decbig cost=", cost14.Seconds(), shouldBebig)
+	pBig := p.Big()
+	start = time.Now()
+	ctpBig, _ := paillierPublic.Enc2(pBig)
+	cost = time.Since(start)
+	fmt.Println("Enc2 cost=", cost.Seconds())
+	start = time.Now()
+	_, _ = paillierSecret.Dec2(ctpBig)
+	cost = time.Since(start)
+	fmt.Println("Dec2 cost=", cost.Seconds())
 
-	start15 := time.Now()
-	ciphertextadd := new(Ciphertext)
-	ciphertextadd = ciphertext.Add(paillierPublic, ciphertext)
-	cost15 := time.Since(start15)
-	fmt.Println("cipheradd cost=", cost15.Seconds(), ciphertextadd)
-	ciphertext.cbig = ciphertext.c.Big()
-	start16 := time.Now()
-	ciphertextadd2 := ciphertext.AddCipher(paillierPublic, ciphertext)
-	cost16 := time.Since(start16)
-	fmt.Println("cipheradd2 cost=", cost16.Seconds(), ciphertextadd2)
+	start = time.Now()
+	_ = ctpSafe.Add(paillierPublic, ctpSafe)
+	cost = time.Since(start)
+	fmt.Println("Add cost=", cost.Seconds())
 
-	k := p.Big()
-	ksafe := new(safenum.Int).SetBig(k, k.BitLen())
-	start17 := time.Now()
-	ciphertextmul := ciphertext.Mul(paillierPublic, ksafe)
-	cost17 := time.Since(start17)
-	fmt.Println("ciphermul cost=", cost17.Seconds(), ciphertextmul.c.Big())
+	ctpSafe.cbig = ctpSafe.c.Big()
+	start = time.Now()
+	_ = ctpSafe.Add2(paillierPublic, ctpSafe)
+	cost = time.Since(start)
+	fmt.Println("Add2 cost=", cost.Seconds())
 
-	start18 := time.Now()
-	ciphertextmul2 := ciphertext.Mul1(paillierPublic, k)
-	cost18 := time.Since(start18)
-	fmt.Println("ciphermul2 cost=", cost18.Seconds(), ciphertextmul2.cbig)
+	pBigSafe := new(safenum.Int).SetBig(pBig, pBig.BitLen())
+	start = time.Now()
+	_ = ctpSafe.Mul(paillierPublic, pBigSafe)
+	cost = time.Since(start)
+	fmt.Println("Mul cost=", cost.Seconds())
+
+	start = time.Now()
+	_ = ctpSafe.Mul2(paillierPublic, pBig)
+	cost = time.Since(start)
+	fmt.Println("Mul2 cost=", cost.Seconds())
 
 }
 

@@ -22,7 +22,7 @@ type Party struct {
 	PaillierPublickey *paillier.PublicKey
 
 	Aux *pedersen.Parameters
-	Rho *big.Int //新添加的
+	Rho *big.Int
 	Xx  *big.Int
 	Xy  *big.Int
 	Xix *big.Int
@@ -48,21 +48,20 @@ type Party struct {
 
 	EncWi *paillier.Ciphertext
 
-	R *big.Int //用于签名的随机数
+	R *big.Int
 	S *big.Int
 }
 type MParties []Party
 
-// 这里面是秘密信息
 type SecretPartyInfo struct {
-	//主要信息
+	//main info
 	PaillierSecertKey *paillier.SecretKey
+	X                 *big.Int
+	Y                 *big.Int
+	Wi                *big.Int
+	Chi               *big.Int
 
-	X   *big.Int
-	Y   *big.Int
-	Wi  *big.Int
-	Chi *big.Int
-	//临时信息，必要的时候都变成空指针
+	//temp info
 	Xi      *big.Int
 	Gammai  *big.Int
 	Xix     *big.Int
@@ -72,7 +71,8 @@ type SecretPartyInfo struct {
 	Rhoi    *big.Int
 	Ui      *big.Int
 	V       map[string]*big.Int
-	//VSS的秘密信息。Round3
+
+	//VSS info, Round3
 	Vssa  map[int]*big.Int
 	VssAx map[int]*big.Int
 	VssAy map[int]*big.Int
@@ -86,7 +86,8 @@ type SecretPartyInfo struct {
 	Deltai  *big.Int
 	Deltaix *big.Int
 	Deltaiy *big.Int
-	//presigning 的消息
+
+	//presigning info
 	Wix *big.Int
 	Wiy *big.Int
 

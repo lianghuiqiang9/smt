@@ -18,14 +18,15 @@ func TestModfiysm2(t *testing.T) {
 	fmt.Println(pky.BitLen())
 
 	hash := sha256.New()
-	msg := []byte("HELLO MSM2")
+	Msg := []byte("HELLO MSM2")
+	Z := new(big.Int).SetBytes([]byte{11})
 
-	r, s := Sign(C, hash, msg, sk, nil)
+	r, s := Sign(C, hash, Msg, Z, sk, nil)
 
-	msg2 := []byte("HELLO MSM2")
-	Z := new(big.Int)
+	MsgTemp := []byte("HELLO MSM2")
+	ZTemp := new(big.Int).SetBytes([]byte{11})
 
-	flag := Verify(C, hash, msg2, Z, pkx, pky, r, s)
-	fmt.Println("签名验证结果", flag)
+	flag := Verify(C, hash, MsgTemp, ZTemp, pkx, pky, r, s)
+	fmt.Println("Verfication result : ", flag)
 
 }

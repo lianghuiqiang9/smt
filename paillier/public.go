@@ -131,7 +131,7 @@ func (pk PublicKey) EncWithNonce(m *safenum.Int, nonce *safenum.Nat) *Ciphertext
 	c := new(safenum.Nat).SetBig(cc, cc.BitLen())
 	return &Ciphertext{c: c}
 }
-func (pk PublicKey) Enc1(m *big.Int) (*Ciphertext, *big.Int) {
+func (pk PublicKey) Enc2(m *big.Int) (*Ciphertext, *big.Int) {
 	r, err := rand.Int(rand.Reader, pk.Nn)
 	if err != nil {
 		return nil, nil
@@ -210,9 +210,9 @@ func (pk *PublicKey) ModulusSquared() *arith.Modulus {
 	return pk.nSquared
 }
 
-func (pk *PublicKey) AddCipher(cipher1, cipher2 *Ciphertext) *big.Int {
-	x := cipher1.cbig
-	y := cipher2.cbig
+func (pk *PublicKey) Add2(ct1, ct2 *Ciphertext) *big.Int {
+	x := ct1.cbig
+	y := ct2.cbig
 
 	// x * y mod n^2
 	return new(big.Int).Mod(

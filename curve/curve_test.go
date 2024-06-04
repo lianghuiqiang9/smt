@@ -7,61 +7,78 @@ import (
 	"testing"
 
 	"github.com/cronokirby/safenum"
-	sm2 "github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/sm2"
 )
 
 func TestCurve(t *testing.T) {
 
-	//这里主要用于调试公钥和sm2曲线的一些基本操作。有一个问题就是P+P=0，但是2P是正确的
-
 	priv, _ := sm2.GenerateKey()
 
 	n := priv.Params().N
-	fmt.Println(n, reflect.TypeOf(n))
+	fmt.Println("n : ", n, reflect.TypeOf(n))
+
 	//得到基点
 	Gx, Gy := priv.Curve.Params().Gx, priv.Curve.Params().Gy
-	fmt.Println(Gx, Gy, reflect.TypeOf(Gx))
+	fmt.Println("G : ", Gx, Gy, reflect.TypeOf(Gx))
 
 	//得到公钥x,y
-	x, y := priv.X, priv.Y
-	fmt.Println("PK", x, y, reflect.TypeOf(x), reflect.TypeOf(y))
+	pkx, pky := priv.X, priv.Y
+	fmt.Println("PK : ", pkx, pky, reflect.TypeOf(pkx), reflect.TypeOf(pky))
 
 	//得到私钥
 	sk := priv.D
-	fmt.Println(sk, reflect.TypeOf(sk))
+	fmt.Println("sk : ", sk, reflect.TypeOf(sk))
+
 	//计算skG
-	Grx1, Gry1 := priv.ScalarMult(Gx, Gy, sk.Bytes())
-	fmt.Println("skG", Grx1, Gry1, reflect.TypeOf(Grx1))
+	skGx, skGy := priv.ScalarMult(Gx, Gy, sk.Bytes())
+	fmt.Println("skG : ", skGx, skGy, reflect.TypeOf(skGx), reflect.TypeOf(skGy))
+
+	if skGx.Cmp(pkx) != 0 || skGy.Cmp(pky) != 0 {
+		fmt.Println("Error in pk")
+	} else {
+		fmt.Println("Correct in pk")
+	}
 
 	//计算点乘
 	d := []byte{2}
-	rx, ry := priv.Curve.ScalarBaseMult(d)
-	fmt.Println(rx, ry, reflect.TypeOf(ry))
-	fmt.Println("*************")
+	dGx, dGy := priv.Curve.ScalarBaseMult(d)
+	fmt.Println("dG : ", dGx, dGy, reflect.TypeOf(dGx), reflect.TypeOf(dGy))
+
+	//计算点加
+	DoubleGx, DoubleGy := priv.Curve.Add(Gx, Gy, Gx, Gy)
+	fmt.Println("DoubleG : ", DoubleGx, DoubleGy, reflect.TypeOf(DoubleGx), reflect.TypeOf(DoubleGy))
+
+	if dGx.Cmp(DoubleGx) != 0 || dGy.Cmp(DoubleGy) != 0 {
+		fmt.Println("Error in 2*G")
+	} else {
+		fmt.Println("Correct in 2*G")
+	}
 
 	//大数相加Add，模Mod
-	var x3, y3 = x, y
-	x3.Add(x3, x3)
-	x3.Mod(x3, n)
-	y3.Add(y3, y3)
-	y3.Mod(y3, n)
-	fmt.Println(x3, y3, reflect.TypeOf(x3), reflect.TypeOf(y3))
+	var x, y = Gx, Gy
+	x.Add(x, x)
+	x.Mod(x, n)
+	y.Add(y, y)
+	y.Mod(y, n)
+	fmt.Println("x, y : ", x, y, reflect.TypeOf(x), reflect.TypeOf(y))
 
-	dd := []byte{11}
-	fmt.Println(d)
-	bigd := new(big.Int).SetBytes(dd)
-	fmt.Println(bigd)
-	//将big变为safenum
-	safed := new(safenum.Nat).SetBig(bigd, bigd.BitLen())
-	fmt.Println(safed)
-	fmt.Println(14 + 13*16 + 15*16*16 + 6*16*16*16)
+	//测试bigInt和Safenum
 
-	//将safenum变为big
-	big2d := safed.Big()
-	fmt.Println(big2d)
+	z := []byte{11}
+	fmt.Println("z : ", z)
+	zBig := new(big.Int).SetBytes(z)
+	fmt.Println("zBig : ", zBig)
 
-	//ok，这里也有字符串变成大数的了。现在一切都准备就绪了。
-	big3d, _ := new(big.Int).SetString("2862345635245435645324338", 0)
-	fmt.Println(big3d)
+	//将Big变为Safenum
+	zSafe := new(safenum.Nat).SetBig(zBig, zBig.BitLen())
+	fmt.Println("zSafe : ", zSafe)
+
+	//将Safenum变为Big
+	zSafeToBig := zSafe.Big()
+	fmt.Println("zSafeToBig : ", zSafeToBig)
+
+	//字符串变成Big
+	BigFromStr, _ := new(big.Int).SetString("2862345635245435645324338", 0)
+	fmt.Println("BigFromStr : ", BigFromStr)
 
 }

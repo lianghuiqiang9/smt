@@ -26,9 +26,9 @@ func (ct *Ciphertext) Add(pk *PublicKey, ct2 *Ciphertext) *Ciphertext {
 	return ct
 }
 
-func (cipher1 *Ciphertext) AddCipher(pk *PublicKey, cipher2 *Ciphertext) *Ciphertext {
-	x := cipher1.cbig
-	y := cipher2.cbig
+func (ct1 *Ciphertext) Add2(pk *PublicKey, ct2 *Ciphertext) *Ciphertext {
+	x := ct1.cbig
+	y := ct2.cbig
 
 	// x * y mod n^2
 	return &Ciphertext{cbig: new(big.Int).Mod(
@@ -37,8 +37,8 @@ func (cipher1 *Ciphertext) AddCipher(pk *PublicKey, cipher2 *Ciphertext) *Cipher
 	)}
 }
 
-func (cipher *Ciphertext) Mul1(pk *PublicKey, constant *big.Int) *Ciphertext {
-	c := cipher.cbig
+func (ct *Ciphertext) Mul2(pk *PublicKey, constant *big.Int) *Ciphertext {
+	c := ct.cbig
 	x := constant
 	// c ^ x mod n^2
 	return &Ciphertext{cbig: new(big.Int).Exp(c, x, pk.NSquared)}
