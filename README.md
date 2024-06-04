@@ -1,5 +1,7 @@
 # 0 SMT
+This is a threshold SM2 signature program.
 
+It still need to be tested before they can be used, only for learning and   communication.
 
 # 1 配置Go环境
 
@@ -17,8 +19,6 @@
 
 # 4 代码解释
 
-This is a threshold SM2 signature program.
-It still need to be tested before they can be used, only for learning and communication.
 
 Abstract
 
