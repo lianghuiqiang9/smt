@@ -15,23 +15,17 @@ import (
 
 func TestVss(t *testing.T) {
 
-	fmt.Println("测试开始")
-	//选定初始化曲线
+	fmt.Println("vss start")
+
 	C := sm2.P256Sm2()
-	//确定参与方人数N<26
 	N := 4
-	//确定阈值T<=N
 	T := 3
-	//建立network
 	var net = network.NewNetwork(nil, N, T, C)
-	//初始化通信信道
 	net.Init()
-	//初始化秘密信息map，每个参与方只使用自己的的。
 	SecretInfo := make(network.MSecretPartiesInfoMap)
 	party := net.Parties[0]
-	//调试的时候初始化
 
-	//随机生成Xi，和Rtigi作为di
+	//random choose Xi, and Rtigi
 	for i := 0; i < N; i++ {
 		SecretInfoi := new(network.SecretPartyInfo)
 		SecretInfoi.Xi, _ = modfiysm2.RandFieldElement(party.Curve, nil)
@@ -42,15 +36,12 @@ func TestVss(t *testing.T) {
 		rand.Read(bf)
 		net.Parties[i].Rtigi = new(big.Int).SetBytes(bf)
 	}
-	fmt.Println("初始化完成")
+	fmt.Println("init finish")
 
-	Vssshare(&net, SecretInfo, N, T)
+	VssShare(&net, SecretInfo, N, T)
 	VssVerify(&net, SecretInfo, N, T)
-	Vssreshare(&net, SecretInfo, N, T)
+	VssBack(&net, SecretInfo, N, T)
 
-	//验证VSS共享是否正确。
-	//计算每个人的秘密分享
-
-	fmt.Println("testing end")
+	fmt.Println("vss end")
 
 }

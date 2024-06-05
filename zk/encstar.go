@@ -11,8 +11,6 @@ import (
 	"github.com/lianghuiqiang9/smt/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/arith"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
-
-	//	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 )
 
@@ -243,8 +241,8 @@ func (p Proof) EncstarVerify(hash hash.Hash, public Public) bool {
 		zGx, zGy := p.curve.ScalarBaseMult(z.Bytes())
 		epkx, epky := p.curve.ScalarMult(public.Xx, public.Xy, e2.Bytes())
 		z2Gx, z2Gy := p.curve.Add(p.Commitment.Bxx, p.Commitment.Bxy, epkx, epky)
-		ff := zGx.Cmp(z2Gx) == 0 && zGy.Cmp(z2Gy) == 0
-		if ff != true {
+		flag := zGx.Cmp(z2Gx) == 0 && zGy.Cmp(z2Gy) == 0
+		if !flag {
 			return false
 		}
 

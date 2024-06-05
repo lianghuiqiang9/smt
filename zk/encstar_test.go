@@ -5,13 +5,11 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"testing"
-
-	msm2 "github.com/lianghuiqiang9/smt/modfiysm2"
+	"time"
 
 	"github.com/cronokirby/safenum"
-
+	"github.com/lianghuiqiang9/smt/modfiysm2"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
-	//	mzk "github.com/taurusgroup/multi-party-sig/pkg/zk"
 	"github.com/tjfoc/gmsm/sm2"
 )
 
@@ -19,7 +17,7 @@ func TestEncstar(t *testing.T) {
 
 	priv, _ := sm2.GenerateKey()
 
-	xi, _ := msm2.RandFieldElement(priv.Curve, nil)
+	xi, _ := modfiysm2.RandFieldElement(priv.Curve, nil)
 
 	x := new(safenum.Int).SetBig(xi, xi.BitLen())
 
@@ -55,10 +53,13 @@ func TestEncstar(t *testing.T) {
 		S: rho,
 		R: rhoY,
 	}
+	start := time.Now()
 	hash := sha256.New()
 	proof := EncstarProof(hash, priv.Curve, public, private)
 
 	flag := proof.EncstarVerify(hash, public)
-	fmt.Println("flag ", flag)
+	fmt.Println(flag)
+	cost := time.Since(start)
+	fmt.Println("encstar cost=", cost.Seconds())
 
 }

@@ -6,13 +6,10 @@ import (
 	"math/big"
 	"sync"
 
-	//	paillierbig "github.com/roasbeef/go-go-gadget-paillier"
-
 	"github.com/lianghuiqiang9/smt/network"
 	"github.com/lianghuiqiang9/smt/paillier"
 
 	"github.com/taurusgroup/multi-party-sig/pkg/hash"
-	//	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 
 	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 	"github.com/taurusgroup/multi-party-sig/pkg/pool"
@@ -20,12 +17,10 @@ import (
 	prm "github.com/taurusgroup/multi-party-sig/pkg/zk/prm"
 )
 
-// 这里定义每轮需要发送的消息
 type Round1Info struct {
 	FromID            string
 	Rtigi             *big.Int
 	PaillierPublickey *paillier.PublicKey
-	//	Paillierpubkey    *paillierbig.PublicKey
 
 	Aux      *pedersen.Parameters
 	PrmPubic *prm.Public
@@ -34,17 +29,16 @@ type Round1Info struct {
 	ModProof *mod.Proof
 }
 
-// 定义的每一个Content都要有一个这样的方法来引入，方便万能指针指向
-func (p *Round1Info) DoSomething(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
+func (p *Round1Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
 	pl := pool.NewPool(0)
 	defer pl.TearDown()
-	flag1 := p.PrmProof.Verify(*p.PrmPubic, hash.New(), pl)
-	if flag1 != true {
+	flag := p.PrmProof.Verify(*p.PrmPubic, hash.New(), pl)
+	if !flag {
 		fmt.Println("the fails party is ", p.FromID)
 		return
 	}
-	flag2 := p.ModProof.Verify(*p.ModPubic, hash.New(), pl)
-	if flag2 != true {
+	flag = p.ModProof.Verify(*p.ModPubic, hash.New(), pl)
+	if !flag {
 		fmt.Println("the fails party is ", p.FromID)
 		return
 	}
@@ -52,22 +46,18 @@ func (p *Round1Info) DoSomething(party *network.Party, net *network.Network, Sec
 
 }
 
-// 一个开始轮，注意round中network的冗余度为2N
-func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
-	defer wg.Done() //结束繁忙的一轮信息
-	//生成随机大数,会话标识符16位应该也可以吧。
+// start round
+func Round1(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+	defer wg.Done()
 	bf := make([]byte, 16)
 	rand.Read(bf)
 	rtigi := new(big.Int).SetBytes(bf)
-	//	fmt.Println(rtig)
 
 	pl := pool.NewPool(0)
 	defer pl.TearDown()
-	//生成paillier公私钥
+
 	PaillierSecertKey := paillier.NewSecretKey(pl)
-	//生成pederson参数
 	ped, lambda := PaillierSecertKey.GeneratePedersen()
-	//生成prm证明
 	public1 := prm.Public{
 		N: ped.N(),
 		S: ped.S(),
@@ -88,7 +78,7 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 		Phi: PaillierSecertKey.Phi(),
 	}, public2, pl)
 
-	//将信息保存在net.parties上
+	//将信息保存在Net.parties上
 	party.Rtigi = rtigi
 	Rtigi := new(big.Int).SetBytes(bf)
 	party.Rtig = Rtigi
@@ -106,13 +96,11 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	Msg := network.Message{FromID: party.ID, ToID: "", MContent: &Round1Content}
 
 	//广播消息
-	for _, mparty := range net.Parties {
+	for _, mparty := range Net.Parties {
 		//本地计算消息位置2，向每一个参与方广播不同消息使用
 		if mparty.ID != party.ID {
 			Msg.ToID = mparty.ID
-			net.Channels[mparty.ID] <- &Msg
+			Net.Channels[mparty.ID] <- &Msg
 		}
 	}
 }
-
-//今天就到这里吧，两个问题，信息需要写到party才行。其二。保存私有信息

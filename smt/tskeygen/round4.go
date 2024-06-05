@@ -22,26 +22,25 @@ type Round4Info struct {
 	Encstarp *zk.Proof
 }
 
-func (p *Round4Info) DoSomething(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
-	//验证Encstarp,p是发送方的i，自己是j
+func (p *Round4Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
+	//验证Encstarp,
 
 	public := zk.Public{
 		Kv:       party.EncXi,
 		Dv:       p.Eji,
 		Fp:       p.Dji,
-		Xx:       net.Parties[p.FromNum].Gammaix,
-		Xy:       net.Parties[p.FromNum].Gammaiy,
-		Prover:   net.Parties[p.FromNum].PaillierPublickey,
+		Xx:       Net.Parties[p.FromNum].Gammaix,
+		Xy:       Net.Parties[p.FromNum].Gammaiy,
+		Prover:   Net.Parties[p.FromNum].PaillierPublickey,
 		Verifier: party.PaillierPublickey,
 		Aux:      party.Aux,
 	}
-	net.Mtx.Lock()
-	flag := p.Encstarp.EncstarVerify(net.Hash, public)
-	net.Mtx.Unlock()
-	if flag != true {
+	Net.Mtx.Lock()
+	flag := p.Encstarp.EncstarVerify(Net.Hash, public)
+	Net.Mtx.Unlock()
+	if !flag {
 		fmt.Println("error", p.FromID)
 	}
-	//写到现在，好像自己已经很熟悉这个流程了，加油，希望晚上也写的时候，不会出现错误。
 
 	//解密Eij
 	alphaij, _ := SecretInfo[party.ID].PaillierSecertKey.Dec(p.Eji)
@@ -53,7 +52,7 @@ func (p *Round4Info) DoSomething(party *network.Party, net *network.Network, Sec
 	SecretInfo[party.ID].Deltai = SecretInfo[party.ID].Deltai.Mod(SecretInfo[party.ID].Deltai, party.Curve.Params().N)
 }
 
-func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func Round4(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 	Y := new(big.Int)
 	Y = SecretInfo[party.ID].Vssy[party.ID]
@@ -63,8 +62,8 @@ func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	SecretInfo[party.ID].MtAEncB = MtAEncB
 
 	for i := 0; i < party.N-1; i++ {
-		val := <-net.Channels[party.ID] // 出 chan
-		val.MContent.DoSomething(party, net, SecretInfo)
+		val := <-Net.Channels[party.ID]
+		val.MContent.DoSomething(party, Net, SecretInfo)
 	}
 
 	party.Yix, party.Yiy = party.Curve.ScalarBaseMult(SecretInfo[party.ID].Y.Bytes())
@@ -73,7 +72,7 @@ func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	//计算A,因为用的都是公共信息。
 	Ax := new(big.Int)
 	Ay := new(big.Int)
-	for _, partyi := range net.Parties {
+	for _, partyi := range Net.Parties {
 		Ax, Ay = partyi.Curve.Add(Ax, Ay, partyi.Xix, partyi.Xiy)
 	}
 	party.Ax = Ax
@@ -85,7 +84,7 @@ func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	Beta := make(map[string]*big.Int)
 	SecretInfo[party.ID].Beta = Beta
 
-	for _, mparty := range net.Parties {
+	for _, mparty := range Net.Parties {
 		if mparty.ID != party.ID {
 
 			//随机Beta，然后加密
@@ -94,7 +93,7 @@ func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecr
 			Betajnegsafe := new(safenum.Int).SetBig(Betajneg, Betajneg.BitLen())
 			EBetajnegsafe, fij := mparty.PaillierPublickey.Enc(Betajnegsafe)
 
-			//Beta应该存储到SecretInfo中。
+			//Beta存储到SecretInfo中。
 			SecretInfo[party.ID].Beta[mparty.ID] = Betaj
 
 			//点乘Gammai和Gj
@@ -124,17 +123,14 @@ func Round4(party *network.Party, net *network.Network, SecretInfo network.MSecr
 				S: fij,
 				R: gij,
 			}
-			net.Mtx.Lock()
-			proof := zk.EncstarProof(net.Hash, party.Curve, public, private)
-			net.Mtx.Unlock()
+			Net.Mtx.Lock()
+			proof := zk.EncstarProof(Net.Hash, party.Curve, public, private)
+			Net.Mtx.Unlock()
 			MRoundContent := Round4Info{party.ID, party.Num, Eji, Dji, proof}
-			//本地计算消息位置1，向每一个参与方广播相同消息的时候使用
 			Msg := network.Message{FromID: party.ID, ToID: "", MContent: &MRoundContent}
 
-			//这里也是单独的情况下
-
 			Msg.ToID = mparty.ID
-			net.Channels[mparty.ID] <- &Msg
+			Net.Channels[mparty.ID] <- &Msg
 		}
 
 	}

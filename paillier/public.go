@@ -137,10 +137,6 @@ func (pk PublicKey) Enc2(m *big.Int) (*Ciphertext, *big.Int) {
 		return nil, nil
 	}
 	c := pk.EncWithNonce2(m, r)
-	if err != nil {
-		return nil, nil
-	}
-
 	return c, r
 }
 

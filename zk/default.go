@@ -6,7 +6,6 @@ import (
 	"github.com/cronokirby/safenum"
 	"github.com/lianghuiqiang9/smt/paillier"
 
-	//	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 	"github.com/taurusgroup/multi-party-sig/pkg/pool"
 )
@@ -19,7 +18,7 @@ var (
 	Pedersen               *pedersen.Parameters
 )
 
-func generate() {
+func Generate() {
 	pl := pool.NewPool(0)
 	defer pl.TearDown()
 

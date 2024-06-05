@@ -37,7 +37,7 @@ type Logstarp struct {
 func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext, Xx *big.Int, Xy *big.Int, k *safenum.Int, rho *safenum.Nat) *Logstarp {
 	N := PK.N()
 	NModulus := PK.Modulus()
-	//这里，让alpha永不为负,如此智障的想法，然后花了两个小时，活该你写的慢，而且丑。
+	//让alpha不为负数。
 	alpha1 := sample.IntervalLEps(rand.Reader)
 	alpha2 := alpha1.Abs()
 	alpha := new(safenum.Int).SetNat(alpha2)
@@ -54,9 +54,7 @@ func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), S.Bytes(), A.Nat().Bytes(), C.Bytes(), Yx.Bytes(), Yy.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
-	//	e = (*safenum.Int)(e.Mod(N))
+	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围
 	hash.Reset()
 
 	z1 := new(safenum.Int).SetInt(k)
@@ -82,14 +80,12 @@ func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters
 }
 
 func (zkp *Logstarp) LogstarVerify(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext, Xx *big.Int, Xy *big.Int) bool {
-	//缺了一个什么呢，缺了范围验证。
+	//缺少范围验证。
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), zkp.S.Bytes(), zkp.A.Nat().Bytes(), zkp.C.Bytes(), zkp.Yx.Bytes(), zkp.Yy.Bytes()))
 	bytes := hash.Sum(nil)
 	hash.Reset()
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
-	//	e = (*safenum.Int)(e.Mod(N))
+	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围
 
 	if !Aux.Verify(zkp.Z1, zkp.Z3, e, zkp.C, zkp.S) {
 		return false
@@ -105,7 +101,6 @@ func (zkp *Logstarp) LogstarVerify(hash hash.Hash, curve elliptic.Curve, Aux *pe
 			return false
 		}
 	}
-	//不知道这个是不是多此一举
 	//	zkp.Z1.Abs()
 	e2 := e.Abs().Big()
 	e2.Mod(e2, curve.Params().N)

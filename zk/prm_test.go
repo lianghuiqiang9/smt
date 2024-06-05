@@ -1,27 +1,20 @@
 package zk
 
 import (
-	//	"crypto/rand"
 	"fmt"
 	"testing"
 	"time"
 
-	//	paillierbig "github.com/roasbeef/go-go-gadget-paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/hash"
 	"github.com/taurusgroup/multi-party-sig/pkg/paillier"
 	"github.com/taurusgroup/multi-party-sig/pkg/pool"
 	prm "github.com/taurusgroup/multi-party-sig/pkg/zk/prm"
 )
 
+// we do not want to rewrite the prm proof, so we use the taurusgroup, hope that is ok.
 func TestPrm(t *testing.T) {
 	pl := pool.NewPool(0)
 	defer pl.TearDown()
-
-	//	paillierprivkey, _ := paillierbig.GenerateKey(rand.Reader, 2048)
-	//	paillierpubkey := paillierprivkey.PublicKey
-
-	//		SecretInfoi.PaillierSecertKey = paillierSecret
-	//SecretInfoi.Paillierprivkey = paillierprivkey
 
 	sk := paillier.NewSecretKey(pl)
 	ped, lambda := sk.GeneratePedersen()
@@ -32,7 +25,7 @@ func TestPrm(t *testing.T) {
 		T: ped.T(),
 	}
 
-	start1 := time.Now()
+	start := time.Now()
 	proof := prm.NewProof(prm.Private{
 		Lambda: lambda,
 		Phi:    sk.Phi(),
@@ -41,7 +34,7 @@ func TestPrm(t *testing.T) {
 	}, hash.New(), public, pl)
 	flag := proof.Verify(public, hash.New(), pl)
 	fmt.Println(flag)
-	cost1 := time.Since(start1)
-	fmt.Println("prm cost=", cost1.Seconds())
+	cost := time.Since(start)
+	fmt.Println("prm cost=", cost.Seconds())
 
 }

@@ -30,12 +30,12 @@ type Round1Info struct {
 	Round1logstarp *zk.Logstarp
 }
 
-func (p *Round1Info) DoSomething(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
+func (p *Round1Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
 
 	//验证zklogstar
-	net.Mtx.Lock()
-	flag2 := p.Round1logstarp.LogstarVerify(net.Hash, net.Parties[p.FromNum].Curve, net.Parties[p.FromNum].Aux, net.Parties[p.FromNum].PaillierPublickey, p.Gi, p.Ax, p.Ay)
-	net.Mtx.Unlock()
+	Net.Mtx.Lock()
+	flag2 := p.Round1logstarp.LogstarVerify(Net.Hash, Net.Parties[p.FromNum].Curve, Net.Parties[p.FromNum].Aux, Net.Parties[p.FromNum].PaillierPublickey, p.Gi, p.Ax, p.Ay)
+	Net.Mtx.Unlock()
 
 	if flag2 != true {
 		fmt.Println("error", p.FromID)
@@ -47,7 +47,7 @@ func (p *Round1Info) DoSomething(party *network.Party, net *network.Network, Sec
 
 }
 
-func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func Round1(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 	//生成随机数k，和kG
 	ki, _ := modfiysm2.RandFieldElement(party.Curve, nil)
@@ -57,7 +57,7 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	SecretInfo[party.ID].Kix, SecretInfo[party.ID].Kiy = Kix, Kiy
 
 	//计算wi
-	lambda := vss.Lagrange(net, party.ID, party.T)
+	lambda := vss.Lagrange(Net, party.ID, party.T)
 	wi := new(big.Int).Mul(lambda, SecretInfo[party.ID].Y)
 	SecretInfo[party.ID].Wi = wi
 
@@ -70,9 +70,9 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	Wx := new(big.Int)
 	Wy := new(big.Int)
 	for i := 0; i < party.T; i++ {
-		if net.Parties[i].ID != party.ID {
-			lambda := vss.Lagrange(net, net.Parties[i].ID, party.T)
-			Wix, Wiy := party.Curve.ScalarMult(net.Parties[i].Yix, net.Parties[i].Yiy, lambda.Bytes())
+		if Net.Parties[i].ID != party.ID {
+			lambda := vss.Lagrange(Net, Net.Parties[i].ID, party.T)
+			Wix, Wiy := party.Curve.ScalarMult(Net.Parties[i].Yix, Net.Parties[i].Yiy, lambda.Bytes())
 			Wx, Wy = party.Curve.Add(Wx, Wy, Wix, Wiy)
 		}
 	}
@@ -93,9 +93,9 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 	ct, v := party.PaillierPublickey.Enc(x)
 	SecretInfo[party.ID].EncWi = ct
 	//生成zkencp
-	net.Mtx.Lock()
-	Round1logstarp := zk.LogstarProve(net.Hash, party.Curve, party.Aux, party.PaillierPublickey, ct, Wix, Wiy, x, v)
-	net.Mtx.Unlock()
+	Net.Mtx.Lock()
+	Round1logstarp := zk.LogstarProve(Net.Hash, party.Curve, party.Aux, party.PaillierPublickey, ct, Wix, Wiy, x, v)
+	Net.Mtx.Unlock()
 
 	//将Ai,Bi,ct广播出去
 	Round1Content := Round1Info{party.ID, party.Num, Wix, Wiy, Kix, Kiy, ct, Round1logstarp}
@@ -103,9 +103,9 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 
 	//广播消息,不失去一般性，这里只考虑前T个参与方
 	for i := 0; i < party.T; i++ {
-		if net.Parties[i].ID != party.ID {
-			Msg.ToID = net.Parties[i].ID
-			net.Channels[net.Parties[i].ID] <- &Msg
+		if Net.Parties[i].ID != party.ID {
+			Msg.ToID = Net.Parties[i].ID
+			Net.Channels[Net.Parties[i].ID] <- &Msg
 		}
 	}
 

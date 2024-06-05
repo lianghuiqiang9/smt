@@ -7,14 +7,14 @@ import (
 	"github.com/lianghuiqiang9/smt/network"
 )
 
-func Output(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func Output(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	party.S = new(big.Int).Set(SecretInfo[party.ID].S)
 
 	for i := 0; i < party.T-1; i++ {
-		val := <-net.Channels[party.ID] // 出 chan
-		val.MContent.DoSomething(party, net, SecretInfo)
+		val := <-Net.Channels[party.ID] // 出 chan
+		val.MContent.DoSomething(party, Net, SecretInfo)
 		//本地计算消息
 	}
 	//s=sum(s)

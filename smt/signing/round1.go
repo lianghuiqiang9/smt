@@ -18,29 +18,29 @@ func (p *Round1Info) DoSomething(party *network.Party, net *network.Network, Sec
 	party.S.Add(party.S, p.S)
 }
 
-func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func Round1(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 	//如何计算Z？？？，Rtig,Rho,Xx,Xy,G。
 	//先这样计算吧。反正都一样的。
 
 	//设置签名消息
-	msg := net.Msg
-	net.Mtx.Lock()
+	msg := Net.Msg
+	Net.Mtx.Lock()
 	//计算Z
-	net.Hash.Write(zk.BytesCombine(party.Rtig.Bytes(), party.Rho.Bytes(), party.Xx.Bytes(), party.Xy.Bytes()))
-	bytes := net.Hash.Sum(nil)
+	Net.Hash.Write(zk.BytesCombine(party.Rtig.Bytes(), party.Rho.Bytes(), party.Xx.Bytes(), party.Xy.Bytes()))
+	bytes := Net.Hash.Sum(nil)
 	//将hash映射到椭圆曲线阶上。
 	Z := new(big.Int).SetBytes(bytes)
-	net.Hash.Reset()
+	Net.Hash.Reset()
 
 	//计算e
-	net.Hash.Write(zk.BytesCombine(Z.Bytes(), msg))
-	bytes2 := net.Hash.Sum(nil)
+	Net.Hash.Write(zk.BytesCombine(Z.Bytes(), msg))
+	bytes2 := Net.Hash.Sum(nil)
 	//将hash映射到椭圆曲线阶上。
 	e := new(big.Int).SetBytes(bytes2)
 
-	net.Hash.Reset()
-	net.Mtx.Unlock()
+	Net.Hash.Reset()
+	Net.Mtx.Unlock()
 
 	//计算r
 	e.Add(e, party.Rx)
@@ -60,9 +60,9 @@ func Round1(party *network.Party, net *network.Network, SecretInfo network.MSecr
 
 	//广播消息,不失去一般性，这里只考虑前T个参与方
 	for i := 0; i < party.T; i++ {
-		if net.Parties[i].ID != party.ID {
-			Msg.ToID = net.Parties[i].ID
-			net.Channels[net.Parties[i].ID] <- &Msg
+		if Net.Parties[i].ID != party.ID {
+			Msg.ToID = Net.Parties[i].ID
+			Net.Channels[Net.Parties[i].ID] <- &Msg
 		}
 	}
 }

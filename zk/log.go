@@ -6,7 +6,7 @@ import (
 	"hash"
 	"math/big"
 
-	msm2 "github.com/lianghuiqiang9/smt/modfiysm2"
+	"github.com/lianghuiqiang9/smt/modfiysm2"
 )
 
 func BytesCombine(pBytes ...[]byte) []byte {
@@ -26,7 +26,7 @@ type Logp struct {
 func LogProve(hash hash.Hash, curve elliptic.Curve, Ax, Ay, x *big.Int) *Logp {
 	N := curve.Params().N
 
-	alpha, _ := msm2.RandFieldElement(curve, nil)
+	alpha, _ := modfiysm2.RandFieldElement(curve, nil)
 	alphaGx, alphaGy := curve.ScalarBaseMult(alpha.Bytes())
 	hash.Write(BytesCombine(Ax.Bytes(), Ay.Bytes(), alphaGx.Bytes(), alphaGy.Bytes()))
 	bytes := hash.Sum(nil)
@@ -63,7 +63,7 @@ func (zkp *Logp) LogVerify(hash hash.Hash, curve elliptic.Curve, Ax, Ay *big.Int
 func LogProve1(hash hash.Hash, curve elliptic.Curve, Ax, Ay, Gx, Gy, x *big.Int) *Logp {
 	N := curve.Params().N
 
-	alpha, _ := msm2.RandFieldElement(curve, nil)
+	alpha, _ := modfiysm2.RandFieldElement(curve, nil)
 	alphaGx, alphaGy := curve.ScalarMult(Gx, Gy, alpha.Bytes())
 	hash.Write(BytesCombine(Ax.Bytes(), Ay.Bytes(), alphaGx.Bytes(), alphaGy.Bytes()))
 	bytes := hash.Sum(nil)

@@ -5,7 +5,13 @@ It still need to be tested before they can be used, only for learning and   comm
 
 # 1 配置Go环境
 
+1. A simple command
+
     sudo apt install golang
+
+2. Or visit the official website
+
+    https://go.dev/dl/
 
 # 2 设置Go代理
 

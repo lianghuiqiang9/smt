@@ -26,7 +26,7 @@ type Encp struct {
 	Z3 *safenum.Int
 }
 
-// 输入hash，aux，PK,证明的K和k,rho
+// 输入hash, aux, PK,证明的K和k, rho
 func EncProve(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext, k *safenum.Int, rho *safenum.Nat) *Encp {
 	N := PK.N()
 	NModulus := PK.Modulus()
@@ -41,8 +41,7 @@ func EncProve(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, 
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), S.Bytes(), A.Nat().Bytes(), C.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
+	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围
 
 	hash.Reset()
 
@@ -67,20 +66,18 @@ func EncProve(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, 
 }
 
 func (zkp *Encp) EncVerify(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext) bool {
-	//缺了一个什么呢，缺了范围验证。
+	//缺了范围验证。
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), zkp.S.Bytes(), zkp.A.Nat().Bytes(), zkp.C.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
-	//	e = (*safenum.Int)(e.Mod(N))
+	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围。
 	if !Aux.Verify(zkp.Z1, zkp.Z3, e, zkp.C, zkp.S) {
 		return false
 	}
 
 	{
 		// lhs = Enc(z₁;z₂)
-		lhs := PK.EncWithNonce(zkp.Z1, zkp.Z2)
+		lhs := PK.EncWithNonce(zkp.Z1, zkp.Z2) //Enc time cost is large
 
 		// rhs = (e ⊙ K) ⊕ A
 		rhs := K.Clone().Mul(PK, e).Add(PK, zkp.A)

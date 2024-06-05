@@ -57,29 +57,25 @@ import (
 )
 
 func TestPaillierKeyGen(t *testing.T) {
-	//选定初始化曲线
 	C := sm2.P256Sm2()
-	//确定参与方人数N<26
 	N := 4
-	//确定阈值T<=N
 	T := 3
-	//建立network
-	var net = network.NewNetwork(nil, N, T, C)
-	//初始化通信信道
-	net.Init()
-	fmt.Println(net.Parties, net.Channels, net.Hash)
+	var Net = network.NewNetwork(nil, N, T, C)
+	Net.Init()
+
+	fmt.Println(Net.Parties, Net.Channels, Net.Hash)
 
 	//初始化秘密信息map，每个参与方只使用自己的的。
 	SecertInfo := make(network.MSecretPartiesInfoMap)
 
 	//MRound会开启N个线程，每一个线程运行round的元素，并将必要的信息放在通信信道里面
 	//再次运行下一个MRound的时候，从信道读取元素，执行操作，再讲消息放到信道
-	round.MRound(Round1, &net, SecertInfo)
-	fmt.Println(net.Parties, net.Channels, net.Hash)
+	round.MRound(Round1, &Net, SecertInfo)
+	fmt.Println(Net.Parties, Net.Channels, Net.Hash)
 
-	round.MRound(Output, &net, SecertInfo)
+	round.MRound(Output, &Net, SecertInfo)
 
-	fmt.Println(net.Parties, net.Channels, net.Hash)
+	fmt.Println(Net.Parties, Net.Channels, Net.Hash)
 
 	fmt.Println("main end")
 
