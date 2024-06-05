@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	//"github.com/roasbeef/go-go-gadget-paillier"
 	"github.com/cronokirby/safenum"
 	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
 )
@@ -12,7 +11,8 @@ import (
 // Ciphertext represents an integer of the for (1+N)ᵐρᴺ (mod N²), representing the encryption of m ∈ ℤₙˣ.
 type Ciphertext struct {
 	c    *safenum.Nat
-	cbig *big.Int //cbig只用于测试bigInt的paillier和safenumInt.Nat的paillier加密速度，对于协议无用
+	cbig *big.Int //cbigonly use to test the differnent between the bigInt and safenumInt, not used in protocols.
+
 }
 
 // Add sets ct to the homomorphic sum ct ⊕ ct₂.

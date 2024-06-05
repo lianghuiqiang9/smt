@@ -17,19 +17,15 @@ func TestCurve(t *testing.T) {
 	n := priv.Params().N
 	fmt.Println("n : ", n, reflect.TypeOf(n))
 
-	//得到基点
 	Gx, Gy := priv.Curve.Params().Gx, priv.Curve.Params().Gy
 	fmt.Println("G : ", Gx, Gy, reflect.TypeOf(Gx))
 
-	//得到公钥x,y
 	pkx, pky := priv.X, priv.Y
 	fmt.Println("PK : ", pkx, pky, reflect.TypeOf(pkx), reflect.TypeOf(pky))
 
-	//得到私钥
 	sk := priv.D
 	fmt.Println("sk : ", sk, reflect.TypeOf(sk))
 
-	//计算skG
 	skGx, skGy := priv.ScalarMult(Gx, Gy, sk.Bytes())
 	fmt.Println("skG : ", skGx, skGy, reflect.TypeOf(skGx), reflect.TypeOf(skGy))
 
@@ -39,12 +35,10 @@ func TestCurve(t *testing.T) {
 		fmt.Println("Correct in pk")
 	}
 
-	//计算点乘
 	d := []byte{2}
 	dGx, dGy := priv.Curve.ScalarBaseMult(d)
 	fmt.Println("dG : ", dGx, dGy, reflect.TypeOf(dGx), reflect.TypeOf(dGy))
 
-	//计算点加
 	DoubleGx, DoubleGy := priv.Curve.Add(Gx, Gy, Gx, Gy)
 	fmt.Println("DoubleG : ", DoubleGx, DoubleGy, reflect.TypeOf(DoubleGx), reflect.TypeOf(DoubleGy))
 
@@ -54,7 +48,6 @@ func TestCurve(t *testing.T) {
 		fmt.Println("Correct in 2*G")
 	}
 
-	//大数相加Add，模Mod
 	var x, y = Gx, Gy
 	x.Add(x, x)
 	x.Mod(x, n)
@@ -62,22 +55,17 @@ func TestCurve(t *testing.T) {
 	y.Mod(y, n)
 	fmt.Println("x, y : ", x, y, reflect.TypeOf(x), reflect.TypeOf(y))
 
-	//测试bigInt和Safenum
-
 	z := []byte{11}
 	fmt.Println("z : ", z)
 	zBig := new(big.Int).SetBytes(z)
 	fmt.Println("zBig : ", zBig)
 
-	//将Big变为Safenum
 	zSafe := new(safenum.Nat).SetBig(zBig, zBig.BitLen())
 	fmt.Println("zSafe : ", zSafe)
 
-	//将Safenum变为Big
 	zSafeToBig := zSafe.Big()
 	fmt.Println("zSafeToBig : ", zSafeToBig)
 
-	//字符串变成Big
 	BigFromStr, _ := new(big.Int).SetString("2862345635245435645324338", 0)
 	fmt.Println("BigFromStr : ", BigFromStr)
 

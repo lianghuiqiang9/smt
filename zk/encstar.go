@@ -15,8 +15,6 @@ import (
 )
 
 type Public struct {
-	// Kv is a ciphertext encrypted with Nᵥ
-	// Original name: C
 	Kv *paillier.Ciphertext
 
 	// Dv = (x ⨀ Kv) ⨁ Encᵥ(y;s)
@@ -99,9 +97,7 @@ func (p *Proof) IsValid(public Public) bool {
 	if !arith.IsValidNatModN(public.Verifier.N(), p.W) {
 		return false
 	}
-	/*	if p.Bx.IsIdentity() {
-		return false
-	}*/
+
 	return true
 }
 
@@ -113,7 +109,7 @@ func EncstarProof(hash hash.Hash, curve elliptic.Curve, public Public, private P
 
 	verifier := public.Verifier
 	prover := public.Prover
-	//将alpha变为正数
+
 	alpha1 := sample.IntervalLEps(rand.Reader)
 	alpha2 := alpha1.Abs()
 	alpha := new(safenum.Int).SetNat(alpha2)
@@ -134,7 +130,7 @@ func EncstarProof(hash hash.Hash, curve elliptic.Curve, public Public, private P
 	S := public.Aux.Commit(private.X, m)
 	F := public.Aux.Commit(beta, delta)
 	T := public.Aux.Commit(private.Y, mu)
-	//修改的东西。
+
 	x := alpha.Abs().Big()
 	Yx, Yy := curve.ScalarBaseMult(x.Bytes())
 
@@ -151,8 +147,7 @@ func EncstarProof(hash hash.Hash, curve elliptic.Curve, public Public, private P
 
 	hash.Write(BytesCombine(public.Aux.N().Bytes(), public.Aux.S().Bytes(), public.Aux.T().Bytes(), public.Prover.Modulus().Bytes(), public.Verifier.Modulus().Bytes(), public.Kv.Nat().Bytes(), public.Dv.Nat().Bytes(), public.Fp.Nat().Bytes(), public.Xx.Bytes(), public.Xy.Bytes(), A.Nat().Bytes(), Yx.Bytes(), Yy.Bytes(), commitment.By.Nat().Bytes(), E.Bytes(), S.Bytes(), F.Bytes(), T.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
+	e := new(safenum.Int).SetBytes(bytes) //Lack of scope for control e
 	hash.Reset()
 
 	// e•x+α
@@ -205,9 +200,8 @@ func (p Proof) EncstarVerify(hash hash.Hash, public Public) bool {
 
 	hash.Write(BytesCombine(public.Aux.N().Bytes(), public.Aux.S().Bytes(), public.Aux.T().Bytes(), public.Prover.Modulus().Bytes(), public.Verifier.Modulus().Bytes(), public.Kv.Nat().Bytes(), public.Dv.Nat().Bytes(), public.Fp.Nat().Bytes(), public.Xx.Bytes(), public.Xy.Bytes(), p.Commitment.A.Nat().Bytes(), p.Commitment.Bxx.Bytes(), p.Commitment.Bxy.Bytes(), p.Commitment.By.Nat().Bytes(), p.Commitment.E.Bytes(), p.Commitment.S.Bytes(), p.Commitment.F.Bytes(), p.Commitment.T.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes)
-	//注意这里没有控制e的范围，可能会出事请。
-	//	e = (*safenum.Int)(e.Mod(N))
+	e := new(safenum.Int).SetBytes(bytes) //Lack of scope for control e
+
 	hash.Reset()
 
 	if !public.Aux.Verify(p.Z1, p.Z3, e, p.E, p.S) {

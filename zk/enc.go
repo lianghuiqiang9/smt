@@ -66,11 +66,11 @@ func EncProve(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, 
 }
 
 func (zkp *Encp) EncVerify(hash hash.Hash, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext) bool {
-	//缺了范围验证。
+	//Lack of scope validation.
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), zkp.S.Bytes(), zkp.A.Nat().Bytes(), zkp.C.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围。
+	e := new(safenum.Int).SetBytes(bytes) //Lack of scope for control e
 	if !Aux.Verify(zkp.Z1, zkp.Z3, e, zkp.C, zkp.S) {
 		return false
 	}

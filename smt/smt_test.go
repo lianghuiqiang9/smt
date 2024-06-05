@@ -11,9 +11,6 @@ import (
 	"github.com/tjfoc/gmsm/sm2"
 )
 
-//var Net1 Network.Network
-//var SecretInfo1 Network.MSecretPartiesInfoMap
-
 func TestSmt(t *testing.T) {
 
 	C := sm2.P256Sm2()
@@ -23,15 +20,15 @@ func TestSmt(t *testing.T) {
 	Net.Init()
 	SecretInfo := make(network.MSecretPartiesInfoMap)
 
-	//paillierkeygen为每一方生成合适的paillier公私钥，persedern数，和Rtig
+	//paillierkeygen generates appropriate paillier public and private keys, persedern numbers, and Rtig for each party.
 	fmt.Println("paillierkeygen")
 	Paillierkeygen(&Net, SecretInfo)
 
-	//tskeygen为每一个参与方生成私钥xi,yi,和公钥x^-1-1G。
+	//tskeygen generates the private keys xi, yi, and public keys x^-1-1G for each participant.
 	fmt.Println("tskeygen")
 	Tskeygen(&Net, SecretInfo)
 
-	//presigning, 需要T个参与方, 协商随机数
+	//presigning, T players are required to negotiate random numbers.
 	fmt.Println("presigning")
 
 	Presigning(&Net, SecretInfo)
@@ -80,6 +77,6 @@ func BenchmarkSmt(b *testing.B) {
 
 		msg2 := []byte("HELLO MSM2")
 		flag := modfiysm2.Verify(C, Net.Hash, msg2, Z, party0.Xx, party0.Xy, party0.R, party0.S)
-		fmt.Println("签名验证结果", flag)
+		fmt.Println("verfication result", flag)
 	}
 }

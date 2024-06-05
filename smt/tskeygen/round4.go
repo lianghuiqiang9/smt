@@ -2,16 +2,13 @@ package tskeygen
 
 import (
 	"fmt"
-	"math/big"
-	"sync"
-
+	"github.com/cronokirby/safenum"
 	"github.com/lianghuiqiang9/smt/modfiysm2"
 	"github.com/lianghuiqiang9/smt/network"
-	"github.com/lianghuiqiang9/smt/zk"
-
-	"github.com/cronokirby/safenum"
 	"github.com/lianghuiqiang9/smt/paillier"
-	// "github.com/taurusgroup/multi-party-sig/pkg/paillier"
+	"github.com/lianghuiqiang9/smt/zk"
+	"math/big"
+	"sync"
 )
 
 type Round4Info struct {
@@ -23,7 +20,7 @@ type Round4Info struct {
 }
 
 func (p *Round4Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
-	//验证Encstarp,
+	//verfiy the Encstarp,
 
 	public := zk.Public{
 		Kv:       party.EncXi,
@@ -42,10 +39,10 @@ func (p *Round4Info) DoSomething(party *network.Party, Net *network.Network, Sec
 		fmt.Println("error", p.FromID)
 	}
 
-	//解密Eij
+	//decrypt the Eij
 	alphaij, _ := SecretInfo[party.ID].PaillierSecertKey.Dec(p.Eji)
 
-	//计算detai
+	//compute the detai
 	alphabeta := alphaij.Abs().Big()
 	alphabeta = alphabeta.Add(alphabeta, SecretInfo[party.ID].Beta[p.FromID])
 	SecretInfo[party.ID].Deltai = SecretInfo[party.ID].Deltai.Add(SecretInfo[party.ID].Deltai, alphabeta)
@@ -69,7 +66,7 @@ func Round4(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 	party.Yix, party.Yiy = party.Curve.ScalarBaseMult(SecretInfo[party.ID].Y.Bytes())
 	party.EncXi = SecretInfo[party.ID].EncXi
 
-	//计算A,因为用的都是公共信息。
+	//compute A, because all the information used is public.
 	Ax := new(big.Int)
 	Ay := new(big.Int)
 	for _, partyi := range Net.Parties {
@@ -78,34 +75,33 @@ func Round4(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 	party.Ax = Ax
 	party.Ay = Ay
 
-	//执行MtA，检查Gj是否存储完毕
+	//Run MtA to check whether the Gj has been stored
 
-	//make一个map,存储Beta
 	Beta := make(map[string]*big.Int)
 	SecretInfo[party.ID].Beta = Beta
 
 	for _, mparty := range Net.Parties {
 		if mparty.ID != party.ID {
 
-			//随机Beta，然后加密
+			//Random choose beta, then encrypt it.
 			Betaj, _ := modfiysm2.RandFieldElement(party.Curve, nil)
 			Betajneg := new(big.Int).Neg(Betaj)
 			Betajnegsafe := new(safenum.Int).SetBig(Betajneg, Betajneg.BitLen())
 			EBetajnegsafe, fij := mparty.PaillierPublickey.Enc(Betajnegsafe)
 
-			//Beta存储到SecretInfo中。
+			//store the Beta to the SecretInfo.
 			SecretInfo[party.ID].Beta[mparty.ID] = Betaj
 
-			//点乘Gammai和Gj
+			//dot multiplication Gammai and Gj
 			Gj := SecretInfo[party.ID].MtAEncB[mparty.ID]
 			Eji := (*paillier.Ciphertext).Clone(Gj)
 			Gammaisafe := new(safenum.Int).SetBig(SecretInfo[party.ID].Gammai, SecretInfo[party.ID].Gammai.BitLen())
 			Eji = Eji.Mul(mparty.PaillierPublickey, Gammaisafe)
-			//加法，然后Eji计算完毕
+			//Add, the finish the Eji
 			Eji = Eji.Add(mparty.PaillierPublickey, EBetajnegsafe)
 			//计算Dji
 			Dji, gij := party.PaillierPublickey.Enc(Betajnegsafe)
-			//计算EncstarP
+			//computate EncstarP
 
 			public := zk.Public{
 				Kv:       Gj,

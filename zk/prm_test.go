@@ -11,7 +11,7 @@ import (
 	prm "github.com/taurusgroup/multi-party-sig/pkg/zk/prm"
 )
 
-// we do not want to rewrite the prm proof, so we use the taurusgroup, hope that is ok.
+// we do not want to rewrite the prm proof, so we use the code from taurusgroup, hope it is ok.
 func TestPrm(t *testing.T) {
 	pl := pool.NewPool(0)
 	defer pl.TearDown()

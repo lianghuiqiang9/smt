@@ -3,20 +3,15 @@ package zk
 import (
 	"crypto/elliptic"
 	"crypto/rand"
-
+	"github.com/cronokirby/safenum"
+	"github.com/lianghuiqiang9/smt/paillier"
+	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
+	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 	"hash"
 	"math/big"
-
-	"github.com/cronokirby/safenum"
-	"github.com/taurusgroup/multi-party-sig/pkg/math/sample"
-
-	// "github.com/taurusgroup/multi-party-sig/pkg/paillier"
-	"github.com/lianghuiqiang9/smt/paillier"
-	"github.com/taurusgroup/multi-party-sig/pkg/pedersen"
 )
 
 type Logstarp struct {
-	//记得要该名称,算了，不改了，其他的都不变，增加了Y
 	// S = sᵏtᵘ
 	S *safenum.Nat
 	// A = Enc₀ (α, r)
@@ -33,11 +28,10 @@ type Logstarp struct {
 	Z3 *safenum.Int
 }
 
-// 输入hash，aux，PK,证明的K和k,rho
 func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext, Xx *big.Int, Xy *big.Int, k *safenum.Int, rho *safenum.Nat) *Logstarp {
 	N := PK.N()
 	NModulus := PK.Modulus()
-	//让alpha不为负数。
+	//Let alpha be a positive number.
 	alpha1 := sample.IntervalLEps(rand.Reader)
 	alpha2 := alpha1.Abs()
 	alpha := new(safenum.Int).SetNat(alpha2)
@@ -54,7 +48,7 @@ func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), S.Bytes(), A.Nat().Bytes(), C.Bytes(), Yx.Bytes(), Yy.Bytes()))
 	bytes := hash.Sum(nil)
-	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围
+	e := new(safenum.Int).SetBytes(bytes) //Lack of scope for control e
 	hash.Reset()
 
 	z1 := new(safenum.Int).SetInt(k)
@@ -80,12 +74,12 @@ func LogstarProve(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters
 }
 
 func (zkp *Logstarp) LogstarVerify(hash hash.Hash, curve elliptic.Curve, Aux *pedersen.Parameters, PK *paillier.PublicKey, K *paillier.Ciphertext, Xx *big.Int, Xy *big.Int) bool {
-	//缺少范围验证。
+	//Lack of scope validation.
 
 	hash.Write(BytesCombine(Aux.N().Bytes(), Aux.S().Bytes(), Aux.T().Bytes(), PK.Modulus().Bytes(), K.Nat().Bytes(), zkp.S.Bytes(), zkp.A.Nat().Bytes(), zkp.C.Bytes(), zkp.Yx.Bytes(), zkp.Yy.Bytes()))
 	bytes := hash.Sum(nil)
 	hash.Reset()
-	e := new(safenum.Int).SetBytes(bytes) //没有控制e的范围
+	e := new(safenum.Int).SetBytes(bytes) //Lack of scope for control e
 
 	if !Aux.Verify(zkp.Z1, zkp.Z3, e, zkp.C, zkp.S) {
 		return false

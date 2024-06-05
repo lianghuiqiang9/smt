@@ -28,7 +28,7 @@ func Output(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 	if !flag {
 		fmt.Println("error")
 	}
-	//计算 X = delta^-1 Gamma - G
+	//computate X = delta^-1 Gamma - G
 	party.Delta.ModInverse(party.Delta, party.Curve.Params().N)
 
 	party.Xx, party.Xy = party.Curve.ScalarMult(party.Gammax, party.Gammay, party.Delta.Bytes())

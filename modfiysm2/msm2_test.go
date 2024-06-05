@@ -10,9 +10,7 @@ import (
 )
 
 func TestModfiysm2(t *testing.T) {
-	//选定初始化曲线
 	C := sm2.P256Sm2()
-	//sk作为私钥
 	sk, pkx, pky := Generatekey(C, nil)
 
 	fmt.Println(pky.BitLen())

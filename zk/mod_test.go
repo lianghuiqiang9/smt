@@ -12,7 +12,7 @@ import (
 	mod "github.com/taurusgroup/multi-party-sig/pkg/zk/mod"
 )
 
-// we do not want to rewrite the mod proof, so we use the taurusgroup, hope that is ok.
+// we do not want to rewrite the nod proof, so we use the code from taurusgroup, hope it is ok.
 func TestMod(t *testing.T) {
 	pl := pool.NewPool(0)
 	defer pl.TearDown()

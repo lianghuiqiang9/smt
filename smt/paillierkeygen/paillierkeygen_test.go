@@ -65,11 +65,8 @@ func TestPaillierKeyGen(t *testing.T) {
 
 	fmt.Println(Net.Parties, Net.Channels, Net.Hash)
 
-	//初始化秘密信息map，每个参与方只使用自己的的。
 	SecertInfo := make(network.MSecretPartiesInfoMap)
 
-	//MRound会开启N个线程，每一个线程运行round的元素，并将必要的信息放在通信信道里面
-	//再次运行下一个MRound的时候，从信道读取元素，执行操作，再讲消息放到信道
 	round.MRound(Round1, &Net, SecertInfo)
 	fmt.Println(Net.Parties, Net.Channels, Net.Hash)
 

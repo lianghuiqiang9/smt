@@ -15,7 +15,7 @@ func Output(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 	for i := 0; i < party.T-1; i++ {
 		val := <-Net.Channels[party.ID] // 出 chan
 		val.MContent.DoSomething(party, Net, SecretInfo)
-		//本地计算消息
+
 	}
 	//s=sum(s)
 	party.S.Mod(party.S, party.Curve.Params().N)

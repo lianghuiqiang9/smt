@@ -10,8 +10,9 @@ import (
 	"github.com/lianghuiqiang9/smt/paillier"
 )
 
-// 不失去一般性，我们取签名方为第0方到第T-1方。如需拓展，还需要结合签名方，来计算对应的lagrange系数
-// id属于0到T-1。
+// Without losing generality, we take the signatory from party 0 to party T-1. If you need to expand, you also need to combine the signatory to calculate the corresponding lagrange coefficient.
+
+// id belongs to 0 to T-1.
 func Lagrange(Net *network.Network, id string, T int) *big.Int {
 	N := Net.Parties[0].Curve.Params().N
 	i := 0
@@ -26,10 +27,9 @@ func Lagrange(Net *network.Network, id string, T int) *big.Int {
 	xj := new(big.Int)
 	A, _ := new(big.Int).SetString("1", 0)
 	B, _ := new(big.Int).SetString("1", 0)
-	//这里总是假设去前T个。
+	//Here it is always assumed to go to the first T.
 	for key := 0; key < T; key++ {
 		if key != i {
-			//计算每一项
 			xj = xj.Neg(Net.Parties[key].Rtigi)
 			A.Mul(A, xj)
 			A.Mod(A, N)
@@ -163,7 +163,7 @@ func VssVerify(Net *network.Network, SecertInfo network.MSecretPartiesInfoMap, N
 	for i := 0; i < N; i++ {
 
 		for _, partyi := range Net.Parties {
-			//对i发送给j的每一个yij进行验证。
+			//Verify every Yij that i sends to j.
 
 			yij := SecertInfo[Net.Parties[i].ID].Vssy[partyi.ID]
 			Yijx, Yijy := party.Curve.ScalarBaseMult(yij.Bytes())

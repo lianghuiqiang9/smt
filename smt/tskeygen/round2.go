@@ -19,27 +19,25 @@ type Round2Info struct {
 	Ui      *big.Int
 }
 
-// 这里是在第三轮根据Round2Info要做的东西。
+// Here's what to do in the third round according to Round2Info.
 func (p *Round2Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
 	Net.Mtx.Lock()
 	Net.Hash.Write(zk.BytesCombine(party.Rtig.Bytes(), p.Xix.Bytes(), p.Xiy.Bytes(), p.Gammaix.Bytes(), p.Gammaiy.Bytes(), p.Rhoi.Bytes(), p.Ui.Bytes()))
 	bytes := Net.Hash.Sum(nil)
-	//计算hash承诺
 	Vi2 := new(big.Int).SetBytes(bytes)
 	Net.Hash.Reset()
 	Net.Mtx.Unlock()
-	//比较Vi2和Vi
 	Vi3 := SecretInfo[party.ID].V[p.FromID]
 
 	if Vi2.Cmp(Vi3) != 0 {
 		fmt.Println("error", p.FromID)
 	}
-	//将Rhoi相加
+	//add the Rhoi to Rho.
 	party.Rho.Add(party.Rho, p.Rhoi)
 
 }
 
-// 这是第二轮要做的消息。
+// Here's the news to be done in the second round.
 func Round2(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -47,7 +45,7 @@ func Round2(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 	SecretInfo[party.ID].V = Vmap
 
 	for i := 0; i < party.N-1; i++ {
-		val := <-Net.Channels[party.ID] // 出 chan
+		val := <-Net.Channels[party.ID]
 		val.MContent.DoSomething(party, Net, SecretInfo)
 	}
 
@@ -55,9 +53,7 @@ func Round2(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 
 	Msg := network.Message{FromID: party.ID, ToID: "", MContent: &MRoundContent}
 
-	//广播消息
 	for _, mparty := range Net.Parties {
-		//本地计算消息位置2，向每一个参与方广播不同消息使用
 		if mparty.ID != party.ID {
 			Msg.ToID = mparty.ID
 			Net.Channels[mparty.ID] <- &Msg

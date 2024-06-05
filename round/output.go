@@ -20,12 +20,10 @@ func (p *OutputContent) DoSomething(party *network.Party, SecertInfo network.MSe
 func Output(party *network.Party, Net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	//本地接受消息
 	for i := 0; i < party.N-1; i++ {
-		val := <-Net.Channels[party.ID] // 出 chan
+		val := <-Net.Channels[party.ID]
 		fmt.Println(*val, party.ID)
 
-		//本地计算消息
 	}
 
 	MRoundContent := StartRoundContent{2, 1, 1}

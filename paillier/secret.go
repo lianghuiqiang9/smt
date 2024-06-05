@@ -193,12 +193,12 @@ func (sk *SecretKey) DecWithRandomness(ct *Ciphertext) (*safenum.Int, *safenum.N
 	mNeg := new(safenum.Int).SetInt(m).Neg(1)
 
 	// x = C(N+1)⁻ᵐ (mod N)
-	x := sk.n.ExpI(sk.nPlusOne, mNeg) //有待优化
+	x := sk.n.ExpI(sk.nPlusOne, mNeg)
 	x.ModMul(x, ct.c, sk.n.Modulus)
 
 	// r = xⁿ⁻¹ (mod N)
 	nInverse := new(safenum.Nat).ModInverse(sk.nNat, safenum.ModulusFromNat(sk.phi))
-	r := sk.n.Exp(x, nInverse) //有待优化的
+	r := sk.n.Exp(x, nInverse)
 	return m, r, nil
 }
 

@@ -22,7 +22,6 @@ type Logp struct {
 	e, z             *big.Int
 }
 
-// prove hash，curve,x
 func LogProve(hash hash.Hash, curve elliptic.Curve, Ax, Ay, x *big.Int) *Logp {
 	N := curve.Params().N
 
@@ -30,10 +29,10 @@ func LogProve(hash hash.Hash, curve elliptic.Curve, Ax, Ay, x *big.Int) *Logp {
 	alphaGx, alphaGy := curve.ScalarBaseMult(alpha.Bytes())
 	hash.Write(BytesCombine(Ax.Bytes(), Ay.Bytes(), alphaGx.Bytes(), alphaGy.Bytes()))
 	bytes := hash.Sum(nil)
-	//将hash映射到椭圆曲线阶上。
+
 	e := new(big.Int).SetBytes(bytes)
 	e = e.Mod(e, N)
-	hash.Reset() //要养成一个良好的习惯。
+	hash.Reset()
 	z := new(big.Int)
 	z.Mul(e, x)
 	z.Add(z, alpha)
@@ -44,7 +43,7 @@ func LogProve(hash hash.Hash, curve elliptic.Curve, Ax, Ay, x *big.Int) *Logp {
 func (zkp *Logp) LogVerify(hash hash.Hash, curve elliptic.Curve, Ax, Ay *big.Int) bool {
 	N := curve.Params().N
 	hash.Write(BytesCombine(Ax.Bytes(), Ay.Bytes(), zkp.alphaGx.Bytes(), zkp.alphaGy.Bytes()))
-	//计算哈希值
+
 	bytes := hash.Sum(nil)
 	hash.Reset()
 	e2 := new(big.Int).SetBytes(bytes)
@@ -67,7 +66,7 @@ func LogProve1(hash hash.Hash, curve elliptic.Curve, Ax, Ay, Gx, Gy, x *big.Int)
 	alphaGx, alphaGy := curve.ScalarMult(Gx, Gy, alpha.Bytes())
 	hash.Write(BytesCombine(Ax.Bytes(), Ay.Bytes(), alphaGx.Bytes(), alphaGy.Bytes()))
 	bytes := hash.Sum(nil)
-	//将hash映射到椭圆曲线阶上。
+
 	e := new(big.Int).SetBytes(bytes)
 	e = e.Mod(e, N)
 	hash.Reset()

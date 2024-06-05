@@ -21,7 +21,7 @@ type Round5Info struct {
 
 func (p *Round5Info) DoSomething(party *network.Party, Net *network.Network, SecretInfo network.MSecretPartiesInfoMap) {
 
-	//验证两个zk
+	//Verify two zk
 	Net.Mtx.Lock()
 	flag := p.logp1.LogVerify(Net.Hash, Net.Parties[p.FromNum].Curve, Net.Parties[p.FromNum].Yix, Net.Parties[p.FromNum].Yiy)
 	flag1 := p.logp2.LogVerify1(Net.Hash, Net.Parties[p.FromNum].Curve, p.Deltaix, p.Deltaiy, Net.Parties[p.FromNum].Gammax, Net.Parties[p.FromNum].Gammay)
@@ -32,7 +32,7 @@ func (p *Round5Info) DoSomething(party *network.Party, Net *network.Network, Sec
 	if !flag1 {
 		fmt.Println("error", p.FromID)
 	}
-	//计算Delta，验证Delta
+	//Calculate the Delta and verify the Delta
 	party.Delta = party.Delta.Add(party.Delta, p.Deltai)
 	party.Delta = party.Delta.Mod(party.Delta, party.Curve.Params().N)
 	party.Deltax, party.Deltay = party.Curve.Add(party.Deltax, party.Deltay, p.Deltaix, p.Deltaiy)
@@ -50,7 +50,7 @@ func Round5(party *network.Party, Net *network.Network, SecretInfo network.MSecr
 		val.MContent.DoSomething(party, Net, SecretInfo)
 	}
 
-	//送过去两个zk，还有Delta。然后就是output了。
+	//Send two zk, and Delta, and output.
 	Deltaix, Deltaiy := party.Curve.ScalarMult(party.Gammax, party.Gammay, SecretInfo[party.ID].Xi.Bytes())
 	Deltaxx := new(big.Int).Set(Deltaix)
 	Deltayy := new(big.Int).Set(Deltaiy)

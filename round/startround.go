@@ -21,13 +21,9 @@ func StartRound(party *network.Party, Net *network.Network, SecertInfo network.M
 	defer wg.Done()
 
 	MStartRoundContent := StartRoundContent{0, 1, 1}
-
-	//本地计算消息位置1，向每一个参与方广播相同消息的时候使用
 	Msg := network.Message{FromID: "a", ToID: "", MContent: &MStartRoundContent}
-
-	//广播消息
 	for _, mparty := range Net.Parties {
-		//本地计算消息位置2，向每一个参与方广播不同消息使用
+
 		if mparty.ID != party.ID {
 			Net.Channels[mparty.ID] <- &Msg
 		}
