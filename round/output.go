@@ -13,7 +13,6 @@ type OutputContent struct {
 	Num          int
 }
 
-// 定义的每一个Content都要有一个这样的方法来引入，方便万能指针指向
 func (p *OutputContent) DoSomething(party *network.Party, SecertInfo network.MSecretPartiesInfoMap) {
 	fmt.Println("this is the Round number ", p.MRoundNumber)
 }

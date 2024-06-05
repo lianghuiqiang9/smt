@@ -30,7 +30,7 @@ type PublicKey struct {
 	nNat *safenum.Nat
 	// nPlusOne = n + 1
 	nPlusOne *safenum.Nat
-	//这里不知道怎么改了，狗尾续貂吧，用别人的
+	//
 
 	Nn       *big.Int // n modulus
 	G        *big.Int // n+1, since p and q are same length
@@ -38,17 +38,17 @@ type PublicKey struct {
 
 }
 
-var one = big.NewInt(1)
+var One = big.NewInt(1)
 
 func h(p *big.Int, pp *big.Int, n *big.Int) *big.Int {
-	gp := new(big.Int).Mod(new(big.Int).Sub(one, n), pp)
+	gp := new(big.Int).Mod(new(big.Int).Sub(One, n), pp)
 	lp := l(gp, p)
 	hp := new(big.Int).ModInverse(lp, p)
 	return hp
 }
 
 func l(u *big.Int, n *big.Int) *big.Int {
-	return new(big.Int).Div(new(big.Int).Sub(u, one), n)
+	return new(big.Int).Div(new(big.Int).Sub(u, One), n)
 }
 
 // N is the public modulus making up this key.
@@ -58,11 +58,11 @@ func (pk *PublicKey) N() *safenum.Modulus {
 
 // NewPublicKey returns an initialized paillier.PublicKey and caches N, N² and (N-1)/2.
 func NewPublicKey(n *safenum.Modulus) *PublicKey {
-	oneNat := new(safenum.Nat).SetUint64(1)
+	OneNat := new(safenum.Nat).SetUint64(1)
 	nNat := n.Nat()
 	nn := new(safenum.Nat).Mul(nNat, nNat, -1)
 	nSquared := safenum.ModulusFromNat(nn)
-	nPlusOne := new(safenum.Nat).Add(nNat, oneNat, -1)
+	nPlusOne := new(safenum.Nat).Add(nNat, OneNat, -1)
 	// Tightening is fine, since n is public
 	nPlusOne.Resize(nPlusOne.TrueLen())
 
@@ -123,7 +123,7 @@ func (pk PublicKey) EncWithNonce(m *safenum.Int, nonce *safenum.Nat) *Ciphertext
 	n := pk.Nn
 	cc := new(big.Int).Mod(
 		new(big.Int).Mul(
-			new(big.Int).Mod(new(big.Int).Add(one, new(big.Int).Mul(mbig, n)), pk.NSquared),
+			new(big.Int).Mod(new(big.Int).Add(One, new(big.Int).Mul(mbig, n)), pk.NSquared),
 			new(big.Int).Exp(r, n, pk.NSquared),
 		),
 		pk.NSquared,
@@ -136,7 +136,7 @@ func (pk PublicKey) Enc2(m *big.Int) (*Ciphertext, *big.Int) {
 	if err != nil {
 		return nil, nil
 	}
-	c := pk.EncWithNonce1(m, r)
+	c := pk.EncWithNonce2(m, r)
 	if err != nil {
 		return nil, nil
 	}
@@ -144,12 +144,12 @@ func (pk PublicKey) Enc2(m *big.Int) (*Ciphertext, *big.Int) {
 	return c, r
 }
 
-func (pk PublicKey) EncWithNonce1(m *big.Int, r *big.Int) *Ciphertext {
+func (pk PublicKey) EncWithNonce2(m *big.Int, r *big.Int) *Ciphertext {
 	// c = g^m * r^n mod n^2 = ((m*n+1) mod n^2) * r^n mod n^2
 	n := pk.Nn
 	cbig := new(big.Int).Mod(
 		new(big.Int).Mul(
-			new(big.Int).Mod(new(big.Int).Add(one, new(big.Int).Mul(m, n)), pk.NSquared),
+			new(big.Int).Mod(new(big.Int).Add(One, new(big.Int).Mul(m, n)), pk.NSquared),
 			new(big.Int).Exp(r, n, pk.NSquared),
 		),
 		pk.NSquared,
@@ -210,6 +210,7 @@ func (pk *PublicKey) ModulusSquared() *arith.Modulus {
 	return pk.nSquared
 }
 
+/*
 func (pk *PublicKey) Add2(ct1, ct2 *Ciphertext) *big.Int {
 	x := ct1.cbig
 	y := ct2.cbig
@@ -227,3 +228,4 @@ func (pk *PublicKey) Mul(cipher *Ciphertext, constant *big.Int) *Ciphertext {
 	// c ^ x mod n^2
 	return &Ciphertext{cbig: new(big.Int).Exp(c, x, pk.NSquared)}
 }
+*/

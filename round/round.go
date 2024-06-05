@@ -13,10 +13,11 @@ type RoundContent struct {
 	Num          int
 }
 
-// 定义的每一个Content都要有一个这样的方法来引入，方便万能指针指向
+/*
 func (p *RoundContent) PrintfN() {
 	fmt.Println("this is the Round number ", p.MRoundNumber)
 }
+*/
 
 func Round(party *network.Party, net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()

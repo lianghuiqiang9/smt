@@ -120,10 +120,10 @@ func NewSecretKeyFromPrimes(P, Q *safenum.Nat) *SecretKey {
 
 		p1:        p1,
 		pp:        pp,
-		pminusone: new(big.Int).Sub(p1, one),
+		pminusone: new(big.Int).Sub(p1, One),
 		q1:        q1,
 		qq:        qq,
-		qminusone: new(big.Int).Sub(q1, one),
+		qminusone: new(big.Int).Sub(q1, One),
 		pinvq:     new(big.Int).ModInverse(p1, q1),
 		hp:        h(p1, pp, n0),
 		hq:        h(q1, qq, n0),
@@ -136,7 +136,7 @@ func NewSecretKeyFromPrimes(P, Q *safenum.Nat) *SecretKey {
 			nPlusOne: nPlusOne,
 			Nn:       n0,
 			NSquared: new(big.Int).Mul(n0, n0),
-			G:        new(big.Int).Add(n0, one), // g = n + 1
+			G:        new(big.Int).Add(n0, One), // g = n + 1
 		},
 	}
 }
@@ -148,11 +148,10 @@ func (sk *SecretKey) Dec(ct *Ciphertext) (*safenum.Int, error) {
 
 	n := sk.PublicKey.n.Modulus
 
-	//区别在这里，所以我认为，这个不能省吧。
+	//
 	if !sk.PublicKey.ValidateCiphertexts(ct) {
 		return nil, errors.New("paillier: failed to decrypt invalid ciphertext")
 	}
-	//fmt.Println("吃了吗")
 
 	c0 := ct.c.Big()
 	cp := new(big.Int).Exp(c0, sk.pminusone, sk.pp)
@@ -171,13 +170,7 @@ func (sk *SecretKey) Dec(ct *Ciphertext) (*safenum.Int, error) {
 }
 
 func (sk *SecretKey) Dec2(ct *Ciphertext) (*big.Int, error) {
-	//	oneNat := new(safenum.Nat).SetUint64(1)
 
-	//	n := sk.PublicKey.n.Modulus
-
-	//	if !sk.PublicKey.ValidateCiphertexts(ct) {
-	//		return nil, errors.New("paillier: failed to decrypt invalid ciphertext")
-	//	}
 	c0 := ct.cbig
 	cp := new(big.Int).Exp(c0, sk.pminusone, sk.pp)
 	lp := l(cp, sk.p1)
@@ -188,7 +181,6 @@ func (sk *SecretKey) Dec2(ct *Ciphertext) (*big.Int, error) {
 	mqq := new(big.Int).Mul(lq, sk.hq)
 	mq := new(big.Int).Mod(mqq, sk.q1)
 	m := crt(mp, mq, sk)
-	//	result := new(safenum.Nat).SetBig(m, m.BitLen())
 	return m, nil
 }
 
@@ -215,33 +207,3 @@ func (sk SecretKey) GeneratePedersen() (*pedersen.Parameters, *safenum.Nat) {
 	ped := pedersen.New(sk.n, s, t)
 	return ped, lambda
 }
-
-// ValidatePrime checks whether p is a suitable prime for Paillier.
-// Checks:
-// - log₂(p) ≡ params.BitsBlumPrime.
-// - p ≡ 3 (mod 4).
-// - q := (p-1)/2 is prime.
-//func ValidatePrime(p *safenum.Nat) error {
-//	if p == nil {
-//		return ErrPrimeNil
-//	}
-//	// check bit lengths
-//	const bitsWant = params.BitsBlumPrime
-//	// Technically, this leaks the number of bits, but this is fine, since returning
-//	// an error asserts this number statically, anyways.
-//	if bits := p.TrueLen(); bits != bitsWant {
-//		return fmt.Errorf("invalid prime size: have: %d, need %d: %w", bits, bitsWant, ErrPrimeBadLength)
-//	}
-//	// check == 3 (mod 4)
-//	if p.Byte(0)&0b11 != 3 {
-//		return ErrNotBlum
-//	}
-
-//	// check (p-1)/2 is prime
-//	pMinus1Div2 := new(safenum.Nat).Rsh(p, 1, -1)
-
-//	if !pMinus1Div2.Big().ProbablyPrime(1) {
-//		return ErrNotSafePrime
-//	}
-//	return nil
-//}
