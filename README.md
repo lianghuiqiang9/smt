@@ -24,7 +24,9 @@ This is a threshold SM2 signature program.
 # 4 Address of the paper
 
 Non-interactive SM2 threshold signature scheme with identifiable abort
+
 url : https://link.springer.com/article/10.1007/s11704-022-2288-x
+
 url : https://journal.hep.com.cn/fcs/EN/10.1007/s11704-022-2288-x
 
 Abstract
@@ -36,6 +38,4 @@ A threshold signature is a special digital signature in which the N-signer share
 1. The main time cost is in zk proof, improve the zk function will reduce a lot of time.
 
 2. We only implement the abort when zk proof failed. Do not implement the identifiable abort now, it need to program the check process in VSS and MultiAdd(MTA). Maybe we do it in the future.
-
-3. Waiting to write.
 
