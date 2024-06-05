@@ -12,16 +12,16 @@ func TestRound(t *testing.T) {
 
 	N := 4
 	T := 2
-	var net = network.NewNetwork(nil, N, T, nil)
-	net.Init()
+	var Net = network.NewNetwork(nil, N, T, nil)
+	Net.Init()
 
 	SecretInfo := make(network.MSecretPartiesInfoMap)
 
-	MRound(StartRound, &net, SecretInfo)
+	MRound(StartRound, &Net, SecretInfo)
 
-	MRound(Round, &net, SecretInfo)
+	MRound(Round, &Net, SecretInfo)
 
-	MRound(Output, &net, SecretInfo)
+	MRound(Output, &Net, SecretInfo)
 
 	time.Sleep(1 * time.Second)
 }

@@ -35,9 +35,9 @@ func NewNetwork(Parties MParties, N, threshold int, curve elliptic.Curve) Networ
 	}
 
 }
-func (net *Network) Init() {
-	N := len(net.Parties)
-	for _, party := range net.Parties {
-		net.Channels[party.ID] = make(chan *Message, N)
+func (Net *Network) Init() {
+	N := len(Net.Parties)
+	for _, party := range Net.Parties {
+		Net.Channels[party.ID] = make(chan *Message, N)
 	}
 }

@@ -17,7 +17,7 @@ func (p *StartRoundContent) DoSomething(party *network.Party, net *network.Netwo
 	fmt.Println("this is the Round number ", p.MRoundNumber)
 }
 
-func StartRound(party *network.Party, net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func StartRound(party *network.Party, Net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	MStartRoundContent := StartRoundContent{0, 1, 1}
@@ -26,10 +26,10 @@ func StartRound(party *network.Party, net *network.Network, SecertInfo network.M
 	Msg := network.Message{FromID: "a", ToID: "", MContent: &MStartRoundContent}
 
 	//广播消息
-	for _, mparty := range net.Parties {
+	for _, mparty := range Net.Parties {
 		//本地计算消息位置2，向每一个参与方广播不同消息使用
 		if mparty.ID != party.ID {
-			net.Channels[mparty.ID] <- &Msg
+			Net.Channels[mparty.ID] <- &Msg
 		}
 	}
 }

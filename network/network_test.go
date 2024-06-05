@@ -11,18 +11,18 @@ func TestNetwork(t *testing.T) {
 	fmt.Println("test start")
 	N := 4
 	T := 2
-	var net = NewNetwork(nil, N, T, nil)
+	var Net = NewNetwork(nil, N, T, nil)
 
-	net.Init()
+	Net.Init()
 
 	go func() {
-		for _, id := range net.Parties {
-			net.Channels[id.ID] <- &Message{"a", id.ID, nil}
+		for _, id := range Net.Parties {
+			Net.Channels[id.ID] <- &Message{"a", id.ID, nil}
 
 		}
 	}()
-	for _, id := range net.Parties {
-		value, err := <-net.Channels[id.ID]
+	for _, id := range Net.Parties {
+		value, err := <-Net.Channels[id.ID]
 		if !err {
 			fmt.Println("read message fails")
 		}
@@ -32,16 +32,16 @@ func TestNetwork(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	go func() {
-		for _, id := range net.Parties {
+		for _, id := range Net.Parties {
 
-			net.Channels["a"] <- &Message{id.ID, "a", nil}
+			Net.Channels["a"] <- &Message{id.ID, "a", nil}
 
 		}
 	}()
 
 	go func() {
 		for {
-			val := <-net.Channels["a"] // 出 chan
+			val := <-Net.Channels["a"] // 出 chan
 			fmt.Println(val)
 		}
 	}()

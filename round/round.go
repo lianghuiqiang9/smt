@@ -13,10 +13,10 @@ type RoundContent struct {
 	Num          int
 }
 
-func Round(party *network.Party, net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
+func Round(party *network.Party, Net *network.Network, SecertInfo network.MSecretPartiesInfoMap, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for i := 0; i < party.N-1; i++ {
-		val := <-net.Channels[party.ID] // 出 chan
+		val := <-Net.Channels[party.ID] // 出 chan
 		fmt.Println(*val, party.ID)
 		//计算消息
 	}
@@ -28,12 +28,12 @@ func Round(party *network.Party, net *network.Network, SecertInfo network.MSecre
 	Msg := network.Message{FromID: "a", ToID: "", MContent: &MRoundContent}
 
 	//广播消息
-	for _, mparty := range net.Parties {
+	for _, mparty := range Net.Parties {
 		//本地计算消息位置2，向每一个参与方广播不同消息使用
 
 		if mparty.ID != party.ID {
 			Msg.ToID = mparty.ID
-			net.Channels[mparty.ID] <- &Msg
+			Net.Channels[mparty.ID] <- &Msg
 		}
 
 	}

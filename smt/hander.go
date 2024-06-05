@@ -1,13 +1,14 @@
 package smt
 
 import (
+	"math/big"
+
 	"github.com/lianghuiqiang9/smt/network"
 	"github.com/lianghuiqiang9/smt/round"
 	"github.com/lianghuiqiang9/smt/smt/paillierkeygen"
 	"github.com/lianghuiqiang9/smt/smt/presigning"
 	"github.com/lianghuiqiang9/smt/smt/signing"
 	"github.com/lianghuiqiang9/smt/smt/tskeygen"
-	"math/big"
 )
 
 type SignInfo struct {

@@ -20,27 +20,27 @@ func TestVss(t *testing.T) {
 	C := sm2.P256Sm2()
 	N := 4
 	T := 3
-	var net = network.NewNetwork(nil, N, T, C)
-	net.Init()
+	var Net = network.NewNetwork(nil, N, T, C)
+	Net.Init()
 	SecretInfo := make(network.MSecretPartiesInfoMap)
-	party := net.Parties[0]
+	party := Net.Parties[0]
 
 	//random choose Xi, and Rtigi
 	for i := 0; i < N; i++ {
 		SecretInfoi := new(network.SecretPartyInfo)
 		SecretInfoi.Xi, _ = modfiysm2.RandFieldElement(party.Curve, nil)
-		SecretInfo[net.Parties[i].ID] = SecretInfoi
+		SecretInfo[Net.Parties[i].ID] = SecretInfoi
 
-		net.Parties[i].Xix, net.Parties[i].Xiy = party.Curve.ScalarBaseMult(SecretInfo[net.Parties[i].ID].Xi.Bytes())
+		Net.Parties[i].Xix, Net.Parties[i].Xiy = party.Curve.ScalarBaseMult(SecretInfo[Net.Parties[i].ID].Xi.Bytes())
 		bf := make([]byte, 16)
 		rand.Read(bf)
-		net.Parties[i].Rtigi = new(big.Int).SetBytes(bf)
+		Net.Parties[i].Rtigi = new(big.Int).SetBytes(bf)
 	}
 	fmt.Println("init finish")
 
-	VssShare(&net, SecretInfo, N, T)
-	VssVerify(&net, SecretInfo, N, T)
-	VssBack(&net, SecretInfo, N, T)
+	VssShare(&Net, SecretInfo, N, T)
+	VssVerify(&Net, SecretInfo, N, T)
+	VssBack(&Net, SecretInfo, N, T)
 
 	fmt.Println("vss end")
 
