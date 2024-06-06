@@ -55,14 +55,21 @@ func TestIsok(t *testing.T) {
 
 	pSafe := new(safenum.Int).SetNat(p)
 	start := time.Now()
-	ctpSafe, _ := paillierPublic.Enc(pSafe)
+	for i := 0; i <= 10; i++ {
+		_, _ = paillierPublic.Enc(pSafe)
+	}
 	cost := time.Since(start)
-	fmt.Println("Enc cost =", cost.Seconds())
+	ctpSafe, _ := paillierPublic.Enc(pSafe)
+	fmt.Println("Enc cost =", cost.Seconds()/10)
+
 	pBig := p.Big()
 	start = time.Now()
-	ctpBig, _ := paillierPublic.Enc2(pBig)
+	for i := 0; i <= 10; i++ {
+		_, _ = paillierPublic.Enc2(pBig)
+	}
 	cost = time.Since(start)
-	fmt.Println("Enc2 cost=", cost.Seconds())
+	ctpBig, _ := paillierPublic.Enc2(pBig)
+	fmt.Println("Enc2 cost=", cost.Seconds()/10)
 
 	start = time.Now()
 	_, _ = paillierSecret.Dec(ctpSafe)
